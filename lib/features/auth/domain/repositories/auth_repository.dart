@@ -27,4 +27,8 @@ abstract class AuthRepository {
   });
 
   Future<void> signInWithSso();
+
+  /// Sends a password-reset email for the account matching [studentId].
+  /// Implementations resolve the underlying email the same way [login] does.
+  Future<void> resetPassword({required String studentId});
 }

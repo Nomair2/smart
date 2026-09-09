@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 
+import 'login_page.dart';
+import 'register_page.dart';
+
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
 
@@ -154,7 +157,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 height: 54,
                 child: ElevatedButton(
                   onPressed: () {
-                    // TODO: navigate to login screen
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const LoginPage()),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryGreen,
@@ -189,7 +194,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 height: 54,
                 child: OutlinedButton(
                   onPressed: () {
-                    // TODO: navigate to sign up screen
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const RegisterPage()),
+                    );
                   },
                   style: OutlinedButton.styleFrom(
                     backgroundColor: const Color(0xFFEAF3EE),

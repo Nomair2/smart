@@ -10,6 +10,7 @@ import '../widgets/auth_text_field.dart';
 import '../widgets/password_field.dart';
 import '../widgets/primary_auth_button.dart';
 import '../widgets/sso_button.dart';
+import 'forgot_password_page.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -104,7 +105,9 @@ class _LoginViewState extends State<_LoginView> {
                             alignment: Alignment.centerRight,
                             child: TextButton(
                               onPressed: () {
-                                // TODO: navigate to the forgot-password flow.
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (_) => const ForgotPasswordPage()),
+                                );
                               },
                               style: TextButton.styleFrom(
                                 foregroundColor: const Color(0xFF1E5B3D),

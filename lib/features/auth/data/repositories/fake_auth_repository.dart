@@ -1,3 +1,4 @@
+import '../../domain/failures/auth_failure.dart';
 import '../../domain/repositories/auth_repository.dart';
 
 class FakeAuthRepository implements AuthRepository {
@@ -8,7 +9,7 @@ class FakeAuthRepository implements AuthRepository {
   }) async {
     await Future.delayed(const Duration(seconds: 1));
     if (password.length < 4) {
-      throw Exception('Invalid credentials');
+      throw const AuthFailure('Invalid student ID or password. Please try again.');
     }
   }
 
@@ -25,6 +26,11 @@ class FakeAuthRepository implements AuthRepository {
 
   @override
   Future<void> signInWithSso() async {
+    await Future.delayed(const Duration(seconds: 1));
+  }
+
+  @override
+  Future<void> resetPassword({required String studentId}) async {
     await Future.delayed(const Duration(seconds: 1));
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../domain/failures/auth_failure.dart';
 import '../../domain/repositories/auth_repository.dart';
 import 'register_state.dart';
 
@@ -67,10 +68,10 @@ class RegisterCubit extends Cubit<RegisterState> {
         college: state.college!,
       );
       emit(state.copyWith(status: RegisterStatus.success));
-    } catch (_) {
+    } catch (e) {
       emit(state.copyWith(
         status: RegisterStatus.failure,
-        errorMessage: 'Could not create your account. Please try again.',
+        errorMessage: e is AuthFailure ? e.message : 'Could not create your account. Please try again.',
       ));
     }
   }

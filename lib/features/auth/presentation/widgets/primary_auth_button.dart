@@ -6,11 +6,13 @@ class PrimaryAuthButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.isLoading = false,
+    this.showArrow = true,
   });
 
   final String label;
   final VoidCallback? onPressed;
   final bool isLoading;
+  final bool showArrow;
 
   @override
   Widget build(BuildContext context) {
@@ -36,8 +38,10 @@ class PrimaryAuthButton extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                  const SizedBox(width: 8),
-                  const Icon(Icons.arrow_forward_rounded, size: 20),
+                  if (showArrow) ...[
+                    const SizedBox(width: 8),
+                    const Icon(Icons.arrow_forward_rounded, size: 20),
+                  ],
                 ],
               ),
       ),

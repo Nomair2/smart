@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../domain/failures/auth_failure.dart';
 import '../../domain/repositories/auth_repository.dart';
 import 'login_state.dart';
 
@@ -37,10 +38,12 @@ class LoginCubit extends Cubit<LoginState> {
         password: state.password,
       );
       emit(state.copyWith(status: LoginStatus.success));
-    } catch (_) {
+    } catch (e) {
       emit(state.copyWith(
         status: LoginStatus.failure,
-        errorMessage: 'Invalid student ID or password. Please try again.',
+        errorMessage: e is AuthFailure
+            ? e.message
+            : 'Invalid student ID or password. Please try again.',
       ));
     }
   }
@@ -50,10 +53,12 @@ class LoginCubit extends Cubit<LoginState> {
     try {
       await _authRepository.signInWithSso();
       emit(state.copyWith(status: LoginStatus.success));
-    } catch (_) {
+    } catch (e) {
       emit(state.copyWith(
         status: LoginStatus.failure,
-        errorMessage: 'Could not sign in with the University Portal. Please try again.',
+        errorMessage: e is AuthFailure
+            ? e.message
+            : 'Could not sign in with the University Portal. Please try again.',
       ));
     }
   }
