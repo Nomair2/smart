@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "17605767783",
+    "project_id": "smartpath-bc6df",
+    "storage_bucket": "smartpath-bc6df.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:17605767783:android:acb4083ba5451ac1715ac2",
+        "android_client_info": {
+          "package_name": "com.example.smartpath"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDK4eojaf68qLXYwMnWiHmu_XaezM6yuUY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
