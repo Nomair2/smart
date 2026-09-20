@@ -10,26 +10,37 @@ class RegisterCubit extends Cubit<RegisterState> {
   final AuthRepository _authRepository;
 
   void studentIdChanged(String value) {
-    emit(state.copyWith(studentId: value, studentIdError: _validateStudentId(value)));
+    emit(
+      state.copyWith(
+        studentId: value,
+        studentIdError: _validateStudentId(value),
+      ),
+    );
   }
 
   void fullNameChanged(String value) {
-    emit(state.copyWith(fullName: value, fullNameError: _validateFullName(value)));
+    emit(
+      state.copyWith(fullName: value, fullNameError: _validateFullName(value)),
+    );
   }
 
   void emailChanged(String value) {
-    emit(state.copyWith(universityEmail: value, emailError: _validateEmail(value)));
+    emit(state.copyWith(Email: value, emailError: _validateEmail(value)));
   }
 
   void passwordChanged(String value) {
-    emit(state.copyWith(password: value, passwordError: _validatePassword(value)));
+    emit(
+      state.copyWith(password: value, passwordError: _validatePassword(value)),
+    );
   }
 
   void collegeChanged(String? value) {
-    emit(state.copyWith(
-      college: value,
-      collegeError: value == null ? 'Please select your college' : null,
-    ));
+    emit(
+      state.copyWith(
+        college: value,
+        collegeError: value == null ? 'Please select your college' : null,
+      ),
+    );
   }
 
   void passwordVisibilityToggled() {
@@ -39,21 +50,30 @@ class RegisterCubit extends Cubit<RegisterState> {
   Future<void> submitted() async {
     final studentIdError = _validateStudentId(state.studentId);
     final fullNameError = _validateFullName(state.fullName);
-    final emailError = _validateEmail(state.universityEmail);
+    final emailError = _validateEmail(state.Email);
     final passwordError = _validatePassword(state.password);
-    final collegeError = state.college == null ? 'Please select your college' : null;
+    final collegeError = state.college == null
+        ? 'Please select your college'
+        : null;
 
-    final hasErrors = [studentIdError, fullNameError, emailError, passwordError, collegeError]
-        .any((e) => e != null);
+    final hasErrors = [
+      studentIdError,
+      fullNameError,
+      emailError,
+      passwordError,
+      collegeError,
+    ].any((e) => e != null);
 
     if (hasErrors) {
-      emit(state.copyWith(
-        studentIdError: studentIdError,
-        fullNameError: fullNameError,
-        emailError: emailError,
-        passwordError: passwordError,
-        collegeError: collegeError,
-      ));
+      emit(
+        state.copyWith(
+          studentIdError: studentIdError,
+          fullNameError: fullNameError,
+          emailError: emailError,
+          passwordError: passwordError,
+          collegeError: collegeError,
+        ),
+      );
       return;
     }
 
@@ -63,16 +83,20 @@ class RegisterCubit extends Cubit<RegisterState> {
       await _authRepository.register(
         studentId: state.studentId.trim(),
         fullName: state.fullName.trim(),
-        universityEmail: state.universityEmail.trim(),
+        email: state.Email.trim(),
         password: state.password,
         college: state.college!,
       );
       emit(state.copyWith(status: RegisterStatus.success));
     } catch (e) {
-      emit(state.copyWith(
-        status: RegisterStatus.failure,
-        errorMessage: e is AuthFailure ? e.message : 'Could not create your account. Please try again.',
-      ));
+      emit(
+        state.copyWith(
+          status: RegisterStatus.failure,
+          errorMessage: e is AuthFailure
+              ? e.message
+              : 'Could not create your account. Please try again.',
+        ),
+      );
     }
   }
 
@@ -88,14 +112,16 @@ class RegisterCubit extends Cubit<RegisterState> {
   String? _validateFullName(String value) {
     final trimmed = value.trim();
     if (trimmed.isEmpty) return 'Full name is required';
-    if (trimmed.split(RegExp(r'\s+')).length < 2) return 'Enter your first and last name';
+    if (trimmed.split(RegExp(r'\s+')).length < 2)
+      return 'Enter your first and last name';
     return null;
   }
 
   String? _validateEmail(String value) {
     final trimmed = value.trim().toLowerCase();
-    if (trimmed.isEmpty) return 'University email is required';
-    if (!trimmed.endsWith('@kku.edu.sa')) return 'Use your KKU university email (id@kku.edu.sa)';
+    if (trimmed.isEmpty) return 'Email is required';
+    if (!trimmed.endsWith('@gmail.com'))
+      return 'Use your email (name@gmail.com)';
     return null;
   }
 

@@ -11,7 +11,7 @@ class RegisterState extends Equatable {
     this.status = RegisterStatus.initial,
     this.studentId = '',
     this.fullName = '',
-    this.universityEmail = '',
+    this.Email = '',
     this.password = '',
     this.college,
     this.isPasswordVisible = false,
@@ -26,7 +26,7 @@ class RegisterState extends Equatable {
   final RegisterStatus status;
   final String studentId;
   final String fullName;
-  final String universityEmail;
+  final String Email;
   final String password;
   final String? college;
   final bool isPasswordVisible;
@@ -42,7 +42,7 @@ class RegisterState extends Equatable {
   bool get isValid =>
       studentId.trim().isNotEmpty &&
       fullName.trim().isNotEmpty &&
-      universityEmail.trim().isNotEmpty &&
+      Email.trim().isNotEmpty &&
       password.isNotEmpty &&
       college != null &&
       studentIdError == null &&
@@ -55,7 +55,7 @@ class RegisterState extends Equatable {
     RegisterStatus? status,
     String? studentId,
     String? fullName,
-    String? universityEmail,
+    String? Email,
     String? password,
     Object? college = _unset,
     bool? isPasswordVisible,
@@ -70,38 +70,45 @@ class RegisterState extends Equatable {
       status: status ?? this.status,
       studentId: studentId ?? this.studentId,
       fullName: fullName ?? this.fullName,
-      universityEmail: universityEmail ?? this.universityEmail,
+      Email: Email ?? this.Email,
       password: password ?? this.password,
       college: identical(college, _unset) ? this.college : college as String?,
       isPasswordVisible: isPasswordVisible ?? this.isPasswordVisible,
-      studentIdError:
-          identical(studentIdError, _unset) ? this.studentIdError : studentIdError as String?,
-      fullNameError:
-          identical(fullNameError, _unset) ? this.fullNameError : fullNameError as String?,
-      emailError: identical(emailError, _unset) ? this.emailError : emailError as String?,
-      passwordError:
-          identical(passwordError, _unset) ? this.passwordError : passwordError as String?,
-      collegeError:
-          identical(collegeError, _unset) ? this.collegeError : collegeError as String?,
-      errorMessage:
-          identical(errorMessage, _unset) ? this.errorMessage : errorMessage as String?,
+      studentIdError: identical(studentIdError, _unset)
+          ? this.studentIdError
+          : studentIdError as String?,
+      fullNameError: identical(fullNameError, _unset)
+          ? this.fullNameError
+          : fullNameError as String?,
+      emailError: identical(emailError, _unset)
+          ? this.emailError
+          : emailError as String?,
+      passwordError: identical(passwordError, _unset)
+          ? this.passwordError
+          : passwordError as String?,
+      collegeError: identical(collegeError, _unset)
+          ? this.collegeError
+          : collegeError as String?,
+      errorMessage: identical(errorMessage, _unset)
+          ? this.errorMessage
+          : errorMessage as String?,
     );
   }
 
   @override
   List<Object?> get props => [
-        status,
-        studentId,
-        fullName,
-        universityEmail,
-        password,
-        college,
-        isPasswordVisible,
-        studentIdError,
-        fullNameError,
-        emailError,
-        passwordError,
-        collegeError,
-        errorMessage,
-      ];
+    status,
+    studentId,
+    fullName,
+    Email,
+    password,
+    college,
+    isPasswordVisible,
+    studentIdError,
+    fullNameError,
+    emailError,
+    passwordError,
+    collegeError,
+    errorMessage,
+  ];
 }

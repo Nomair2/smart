@@ -10,11 +10,18 @@ class LoginCubit extends Cubit<LoginState> {
   final AuthRepository _authRepository;
 
   void studentIdChanged(String value) {
-    emit(state.copyWith(studentId: value, studentIdError: _validateStudentId(value)));
+    emit(
+      state.copyWith(
+        studentId: value,
+        studentIdError: _validateStudentId(value),
+      ),
+    );
   }
 
   void passwordChanged(String value) {
-    emit(state.copyWith(password: value, passwordError: _validatePassword(value)));
+    emit(
+      state.copyWith(password: value, passwordError: _validatePassword(value)),
+    );
   }
 
   void passwordVisibilityToggled() {
@@ -26,7 +33,12 @@ class LoginCubit extends Cubit<LoginState> {
     final passwordError = _validatePassword(state.password);
 
     if (studentIdError != null || passwordError != null) {
-      emit(state.copyWith(studentIdError: studentIdError, passwordError: passwordError));
+      emit(
+        state.copyWith(
+          studentIdError: studentIdError,
+          passwordError: passwordError,
+        ),
+      );
       return;
     }
 
@@ -37,14 +49,17 @@ class LoginCubit extends Cubit<LoginState> {
         studentId: state.studentId.trim(),
         password: state.password,
       );
-      emit(state.copyWith(status: LoginStatus.success));
+      final role = await _authRepository.currentUserRole();
+      emit(state.copyWith(status: LoginStatus.success, role: role));
     } catch (e) {
-      emit(state.copyWith(
-        status: LoginStatus.failure,
-        errorMessage: e is AuthFailure
-            ? e.message
-            : 'Invalid student ID or password. Please try again.',
-      ));
+      emit(
+        state.copyWith(
+          status: LoginStatus.failure,
+          errorMessage: e is AuthFailure
+              ? e.message
+              : 'Invalid student ID or password. Please try again.',
+        ),
+      );
     }
   }
 
@@ -52,14 +67,17 @@ class LoginCubit extends Cubit<LoginState> {
     emit(state.copyWith(status: LoginStatus.submitting, errorMessage: null));
     try {
       await _authRepository.signInWithSso();
-      emit(state.copyWith(status: LoginStatus.success));
+      final role = await _authRepository.currentUserRole();
+      emit(state.copyWith(status: LoginStatus.success, role: role));
     } catch (e) {
-      emit(state.copyWith(
-        status: LoginStatus.failure,
-        errorMessage: e is AuthFailure
-            ? e.message
-            : 'Could not sign in with the University Portal. Please try again.',
-      ));
+      emit(
+        state.copyWith(
+          status: LoginStatus.failure,
+          errorMessage: e is AuthFailure
+              ? e.message
+              : 'Could not sign in with the University Portal. Please try again.',
+        ),
+      );
     }
   }
 

@@ -85,7 +85,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
                   // Title
                   const Text(
-                    'Smart Path',
+                    'Masar KKU',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 34,

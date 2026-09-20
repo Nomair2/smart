@@ -1,3 +1,5 @@
+import '../entities/app_user_role.dart';
+
 /// Contract the presentation layer depends on. Implement this in the data
 /// layer (e.g. `FirebaseAuthRepository`) and provide it above `MaterialApp`
 /// with `RepositoryProvider<AuthRepository>`.
@@ -13,15 +15,12 @@
 /// Option 1 keeps the real university email as the source of truth and is
 /// what `register()` below assumes.
 abstract class AuthRepository {
-  Future<void> login({
-    required String studentId,
-    required String password,
-  });
+  Future<void> login({required String studentId, required String password});
 
   Future<void> register({
     required String studentId,
     required String fullName,
-    required String universityEmail,
+    required String email,
     required String password,
     required String college,
   });
@@ -31,4 +30,10 @@ abstract class AuthRepository {
   /// Sends a password-reset email for the account matching [studentId].
   /// Implementations resolve the underlying email the same way [login] does.
   Future<void> resetPassword({required String studentId});
+
+  /// Which role the *currently signed-in* Firebase Auth user has. Call this
+  /// right after [login] succeeds, or on app startup once
+  /// `authStateChanges` confirms a user is already signed in. Throws if
+  /// nobody is currently signed in.
+  Future<AppUserRole> currentUserRole();
 }

@@ -67,10 +67,12 @@ class _RegisterViewState extends State<_RegisterView> {
             shrinkWrap: true,
             padding: const EdgeInsets.symmetric(vertical: 12),
             children: _colleges
-                .map((college) => ListTile(
-                      title: Text(college),
-                      onTap: () => Navigator.of(sheetContext).pop(college),
-                    ))
+                .map(
+                  (college) => ListTile(
+                    title: Text(college),
+                    onTap: () => Navigator.of(sheetContext).pop(college),
+                  ),
+                )
                 .toList(),
           ),
         );
@@ -87,7 +89,8 @@ class _RegisterViewState extends State<_RegisterView> {
       body: BlocConsumer<RegisterCubit, RegisterState>(
         listenWhen: (previous, current) => previous.status != current.status,
         listener: (context, state) {
-          if (state.status == RegisterStatus.failure && state.errorMessage != null) {
+          if (state.status == RegisterStatus.failure &&
+              state.errorMessage != null) {
             ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()
               ..showSnackBar(SnackBar(content: Text(state.errorMessage!)));
@@ -107,7 +110,7 @@ class _RegisterViewState extends State<_RegisterView> {
                 children: [
                   const AuthGradientHeader(
                     title: 'Create Account',
-                    subtitle: "Join Smart Path — it's free",
+                    subtitle: "Join Masar KKU — it's free",
                     emoji: '✨',
                   ),
                   Transform.translate(
@@ -116,7 +119,9 @@ class _RegisterViewState extends State<_RegisterView> {
                       padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
                       decoration: const BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(28),
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -142,8 +147,8 @@ class _RegisterViewState extends State<_RegisterView> {
                             onChanged: cubit.fullNameChanged,
                           ),
                           AuthTextField(
-                            label: 'University Email',
-                            hint: 'id@kku.edu.sa',
+                            label: 'Email',
+                            hint: 'name@gmail.com',
                             icon: Icons.mail_outline_rounded,
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
@@ -154,7 +159,8 @@ class _RegisterViewState extends State<_RegisterView> {
                             controller: _passwordController,
                             hint: 'Create a strong password',
                             isVisible: state.isPasswordVisible,
-                            onVisibilityToggled: cubit.passwordVisibilityToggled,
+                            onVisibilityToggled:
+                                cubit.passwordVisibilityToggled,
                             errorText: state.passwordError,
                             strength: state.passwordStrength,
                             onChanged: cubit.passwordChanged,
@@ -173,7 +179,10 @@ class _RegisterViewState extends State<_RegisterView> {
                             borderRadius: BorderRadius.circular(14),
                             onTap: () => _pickCollege(context, cubit),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 14,
+                              ),
                               decoration: BoxDecoration(
                                 color: const Color(0xFFF4F6F5),
                                 borderRadius: BorderRadius.circular(14),
@@ -183,19 +192,26 @@ class _RegisterViewState extends State<_RegisterView> {
                               ),
                               child: Row(
                                 children: [
-                                  const Text('🎓', style: TextStyle(fontSize: 16)),
+                                  const Text(
+                                    '🎓',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
                                   const SizedBox(width: 10),
                                   Expanded(
                                     child: Text(
                                       state.college ?? 'Select your college',
                                       style: TextStyle(
                                         fontSize: 14.5,
-                                        color:
-                                            state.college != null ? Colors.black87 : Colors.grey[500],
+                                        color: state.college != null
+                                            ? Colors.black87
+                                            : Colors.grey[500],
                                       ),
                                     ),
                                   ),
-                                  Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey[500]),
+                                  Icon(
+                                    Icons.keyboard_arrow_down_rounded,
+                                    color: Colors.grey[500],
+                                  ),
                                 ],
                               ),
                             ),
@@ -204,22 +220,31 @@ class _RegisterViewState extends State<_RegisterView> {
                             const SizedBox(height: 6),
                             Text(
                               state.collegeError!,
-                              style: const TextStyle(fontSize: 12, color: Color(0xFFE0574C)),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFFE0574C),
+                              ),
                             ),
                           ],
                           const SizedBox(height: 24),
                           PrimaryAuthButton(
                             label: 'Create Account',
-                            isLoading: state.status == RegisterStatus.submitting,
+                            isLoading:
+                                state.status == RegisterStatus.submitting,
                             onPressed: state.isValid ? cubit.submitted : null,
                           ),
                           const SizedBox(height: 16),
                           Center(
                             child: RichText(
                               text: TextSpan(
-                                style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.grey[600],
+                                ),
                                 children: [
-                                  const TextSpan(text: 'Already have an account? '),
+                                  const TextSpan(
+                                    text: 'Already have an account? ',
+                                  ),
                                   TextSpan(
                                     text: 'Login',
                                     style: const TextStyle(
@@ -227,8 +252,9 @@ class _RegisterViewState extends State<_RegisterView> {
                                       fontWeight: FontWeight.w700,
                                     ),
                                     recognizer: TapGestureRecognizer()
-                                      ..onTap = () =>
-                                          Navigator.of(context).pushReplacementNamed('/login'),
+                                      ..onTap = () => Navigator.of(
+                                        context,
+                                      ).pushReplacementNamed('/login'),
                                   ),
                                 ],
                               ),

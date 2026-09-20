@@ -50,7 +50,8 @@ class _LoginViewState extends State<_LoginView> {
       body: BlocConsumer<LoginCubit, LoginState>(
         listenWhen: (previous, current) => previous.status != current.status,
         listener: (context, state) {
-          if (state.status == LoginStatus.failure && state.errorMessage != null) {
+          if (state.status == LoginStatus.failure &&
+              state.errorMessage != null) {
             ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()
               ..showSnackBar(SnackBar(content: Text(state.errorMessage!)));
@@ -79,7 +80,9 @@ class _LoginViewState extends State<_LoginView> {
                       padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
                       decoration: const BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(28),
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -97,7 +100,8 @@ class _LoginViewState extends State<_LoginView> {
                             controller: _passwordController,
                             hint: 'Enter your password',
                             isVisible: state.isPasswordVisible,
-                            onVisibilityToggled: cubit.passwordVisibilityToggled,
+                            onVisibilityToggled:
+                                cubit.passwordVisibilityToggled,
                             errorText: state.passwordError,
                             onChanged: cubit.passwordChanged,
                           ),
@@ -106,7 +110,9 @@ class _LoginViewState extends State<_LoginView> {
                             child: TextButton(
                               onPressed: () {
                                 Navigator.of(context).push(
-                                  MaterialPageRoute(builder: (_) => const ForgotPasswordPage()),
+                                  MaterialPageRoute(
+                                    builder: (_) => const ForgotPasswordPage(),
+                                  ),
                                 );
                               },
                               style: TextButton.styleFrom(
@@ -117,7 +123,10 @@ class _LoginViewState extends State<_LoginView> {
                               ),
                               child: const Text(
                                 'Forgot Password?',
-                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ),
@@ -128,31 +137,36 @@ class _LoginViewState extends State<_LoginView> {
                             onPressed: state.isValid ? cubit.submitted : null,
                           ),
                           const SizedBox(height: 20),
-                          Row(
-                            children: [
-                              const Expanded(child: Divider(color: Color(0xFFE4E8E6))),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 10),
-                                child: Text(
-                                  'or sign in with',
-                                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-                                ),
-                              ),
-                              const Expanded(child: Divider(color: Color(0xFFE4E8E6))),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          SsoButton(
-                            label: 'University Portal (SSO)',
-                            onPressed: cubit.ssoRequested,
-                          ),
+                          // Row(
+                          //   children: [
+                          //     const Expanded(child: Divider(color: Color(0xFFE4E8E6))),
+                          //     Padding(
+                          //       padding: const EdgeInsets.symmetric(horizontal: 10),
+                          //       child: Text(
+                          //         'or sign in with',
+                          //         style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                          //       ),
+                          //     ),
+                          //     const Expanded(child: Divider(color: Color(0xFFE4E8E6))),
+                          //   ],
+                          // ),
+                          // const SizedBox(height: 16),
+                          // SsoButton(
+                          //   label: 'University Portal (SSO)',
+                          //   onPressed: cubit.ssoRequested,
+                          // ),
                           const SizedBox(height: 20),
                           Center(
                             child: RichText(
                               text: TextSpan(
-                                style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.grey[600],
+                                ),
                                 children: [
-                                  const TextSpan(text: "Don't have an account? "),
+                                  const TextSpan(
+                                    text: "Don't have an account? ",
+                                  ),
                                   TextSpan(
                                     text: 'Register',
                                     style: const TextStyle(
@@ -160,8 +174,9 @@ class _LoginViewState extends State<_LoginView> {
                                       fontWeight: FontWeight.w700,
                                     ),
                                     recognizer: TapGestureRecognizer()
-                                      ..onTap = () =>
-                                          Navigator.of(context).pushReplacementNamed('/register'),
+                                      ..onTap = () => Navigator.of(
+                                        context,
+                                      ).pushReplacementNamed('/register'),
                                   ),
                                 ],
                               ),
