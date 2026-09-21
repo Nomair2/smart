@@ -1,3 +1,4 @@
+import 'package:MasarKKU/features/routing/presentation/pages/route_selection_page.dart';
 import 'package:flutter/material.dart';
 
 import '../../../home/presentation/pages/home_page.dart';
@@ -23,8 +24,12 @@ class _MainShellPageState extends State<MainShellPage> {
   @override
   Widget build(BuildContext context) {
     final pages = [
-      HomePage(onOpenRoutes: () => _goToTab(1), onOpenProfile: () => _goToTab(3)),
-      const RoutesPlaceholderPage(),
+      HomePage(
+        onOpenRoutes: () => _goToTab(1),
+        onOpenProfile: () => _goToTab(3),
+      ),
+      // const RoutesPlaceholderPage(),
+      const RouteSelectionPage(),
       const AlertsPlaceholderPage(),
       const ProfilePage(),
     ];
@@ -37,13 +42,26 @@ class _MainShellPageState extends State<MainShellPage> {
         backgroundColor: Colors.white,
         indicatorColor: const Color(0xFFEAF3EE),
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home_rounded), label: 'Home'),
-          NavigationDestination(icon: Icon(Icons.map_outlined), selectedIcon: Icon(Icons.map_rounded), label: 'Routes'),
           NavigationDestination(
-              icon: Icon(Icons.notifications_none_rounded),
-              selectedIcon: Icon(Icons.notifications_rounded),
-              label: 'Alerts'),
-          NavigationDestination(icon: Icon(Icons.person_outline_rounded), selectedIcon: Icon(Icons.person_rounded), label: 'Profile'),
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home_rounded),
+            label: 'Home',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.map_outlined),
+            selectedIcon: Icon(Icons.map_rounded),
+            label: 'Routes',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.notifications_none_rounded),
+            selectedIcon: Icon(Icons.notifications_rounded),
+            label: 'Alerts',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline_rounded),
+            selectedIcon: Icon(Icons.person_rounded),
+            label: 'Profile',
+          ),
         ],
       ),
     );
