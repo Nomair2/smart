@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import '../../../home/presentation/pages/home_page.dart';
 import '../../../profile/presentation/pages/profile_page.dart';
 import 'alerts_placeholder_page.dart';
-import 'routes_placeholder_page.dart';
 
 /// The signed-in student's shell — bottom nav across Home / Routes / Alerts
 /// / Profile (report Fig21's tab bar). An [IndexedStack] keeps each tab's

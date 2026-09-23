@@ -1,3 +1,7 @@
+import 'package:MasarKKU/features/routing/data/noop_voice_guide_service.dart';
+import 'package:MasarKKU/features/routing/data/repositories/fake_campus_repository.dart';
+import 'package:MasarKKU/features/routing/domain/repositories/campus_repository.dart';
+import 'package:MasarKKU/features/routing/domain/voice_guide_service.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +39,12 @@ Future<void> main() async {
         // doc comment on HomeRepository for what swapping this out later
         // needs.
         RepositoryProvider<HomeRepository>(create: (_) => FakeHomeRepository()),
+        RepositoryProvider<CampusRepository>(
+          create: (_) => FakeCampusRepository(),
+        ),
+        RepositoryProvider<VoiceGuideService>(
+          create: (_) => NoopVoiceGuideService(),
+        ),
       ],
       child: const SmartPathApp(),
     ),

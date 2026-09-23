@@ -57,11 +57,11 @@ class FakeCampusRepository implements CampusRepository {
   static final _i6 = CampusNode(id: 'x_6', type: CampusNodeType.intersection, location: _pt(-0.0014, 0.0002));
 
   static final List<CampusNode> _nodes = [
-        mainGate, gate2East, gate3South, gate4West,
-        csItBuilding, engineeringBuilding, library, adminBuilding,
-        medicalCollege, mosque, studentCenter, cafeteria,
-        _i1, _i2, _i3, _i4, _i5, _i6,
-      ];
+    mainGate, gate2East, gate3South, gate4West,
+    csItBuilding, engineeringBuilding, library, adminBuilding,
+    medicalCollege, mosque, studentCenter, cafeteria,
+    _i1, _i2, _i3, _i4, _i5, _i6,
+  ];
 
   /// A slightly bent line between two points, via one offset midpoint —
   /// enough to give guidance generation an actual turning point to detect,
@@ -85,34 +85,34 @@ class FakeCampusRepository implements CampusRepository {
   }
 
   static final List<PathSegment> _segments = [
-        // Main Gate side (open access road near the gate — low shade)
-        _seg('seg_1', mainGate, _i1, 0.30),
-        _seg('seg_2', _i1, gate3South, 0.30),
-        // Direct bypass from the main-gate area straight toward the CS/Eng
-        // cluster — the "shortest" option: short, but exposed.
-        _seg('seg_3', _i1, _i4, 0.15, bent: false),
-        // The scenic option: tree-lined central spine via the plaza —
-        // longer, but noticeably more shaded overall.
-        _seg('seg_4', _i1, _i2, 0.65),
-        _seg('seg_5', _i2, _i3, 0.75),
-        _seg('seg_6', _i2, _i4, 0.40), // the one exposed plaza crossing on this route
-        // Library / Mosque cluster
-        _seg('seg_7', _i3, library, 0.80),
-        _seg('seg_8', _i3, mosque, 0.70),
-        _seg('seg_9', _i2, studentCenter, 0.50),
-        _seg('seg_10', _i2, cafeteria, 0.45),
-        // CS/IT / Engineering / Gate 2 / Medical cluster
-        _seg('seg_11', _i4, csItBuilding, 0.85),
-        _seg('seg_12', _i4, engineeringBuilding, 0.50),
-        _seg('seg_13', _i4, _i5, 0.30),
-        _seg('seg_14', _i5, gate2East, 0.20),
-        _seg('seg_15', _i5, medicalCollege, 0.35),
-        // West side — Admin / Gate 4
-        _seg('seg_16', _i2, _i6, 0.55),
-        _seg('seg_17', _i6, adminBuilding, 0.60),
-        _seg('seg_18', _i6, gate4West, 0.25),
-        _seg('seg_19', gate3South, _i6, 0.45), // alternate south-west connector
-      ];
+    // Main Gate side (open access road near the gate — low shade)
+    _seg('seg_1', mainGate, _i1, 0.30),
+    _seg('seg_2', _i1, gate3South, 0.30),
+    // Direct bypass from the main-gate area straight toward the CS/Eng
+    // cluster — the "shortest" option: short, but exposed.
+    _seg('seg_3', _i1, _i4, 0.15, bent: false),
+    // The scenic option: tree-lined central spine via the plaza —
+    // longer, but noticeably more shaded overall.
+    _seg('seg_4', _i1, _i2, 0.65),
+    _seg('seg_5', _i2, _i3, 0.75),
+    _seg('seg_6', _i2, _i4, 0.40), // the one exposed plaza crossing on this route
+    // Library / Mosque cluster
+    _seg('seg_7', _i3, library, 0.80),
+    _seg('seg_8', _i3, mosque, 0.70),
+    _seg('seg_9', _i2, studentCenter, 0.50),
+    _seg('seg_10', _i2, cafeteria, 0.45),
+    // CS/IT / Engineering / Gate 2 / Medical cluster
+    _seg('seg_11', _i4, csItBuilding, 0.85),
+    _seg('seg_12', _i4, engineeringBuilding, 0.50),
+    _seg('seg_13', _i4, _i5, 0.30),
+    _seg('seg_14', _i5, gate2East, 0.20),
+    _seg('seg_15', _i5, medicalCollege, 0.35),
+    // West side — Admin / Gate 4
+    _seg('seg_16', _i2, _i6, 0.55),
+    _seg('seg_17', _i6, adminBuilding, 0.60),
+    _seg('seg_18', _i6, gate4West, 0.25),
+    _seg('seg_19', gate3South, _i6, 0.45), // alternate south-west connector
+  ];
 
   @override
   Future<List<CampusNode>> fetchNodes() async {

@@ -5,6 +5,7 @@ import '../../domain/entities/route_result.dart';
 import '../widgets/alternative_route_row.dart';
 import '../widgets/comfort_bar.dart';
 import '../widgets/route_stat_chip.dart';
+import 'route_guide_page.dart';
 
 class BestRoutePage extends StatelessWidget {
   const BestRoutePage({super.key, required this.result});
@@ -216,8 +217,9 @@ class BestRoutePage extends StatelessWidget {
                             flex: 3,
                             child: ElevatedButton.icon(
                               onPressed: () {
-                                // TODO: Route Guide — turn-by-turn using
-                                // result.instructions (already computed).
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (_) => RouteGuidePage(result: result)),
+                                );
                               },
                               icon: const Icon(Icons.menu_book_rounded, size: 17),
                               label: const Text('View Route'),
