@@ -1,5 +1,6 @@
 import '../../../core/domain/entities/geo_coordinate.dart';
 import '../../../core/domain/entities/season_mode.dart';
+import '../../home/domain/entities/weather_snapshot.dart';
 import 'entities/campus_node.dart';
 import 'entities/guidance_instruction.dart';
 import 'entities/path_segment.dart';
@@ -39,8 +40,7 @@ class RoutingEngine {
     required List<CampusNode> nodes,
     required List<PathSegment> segments,
     required RouteRequest request,
-    required double currentTemperatureC,
-    required double windSpeedKph,
+    required WeatherSnapshot weather,
   }) {
     final nodesById = {for (final n in nodes) n.id: n};
     final origin = nodesById[request.originNodeId];
@@ -48,7 +48,7 @@ class RoutingEngine {
     if (origin == null || destination == null) return null;
 
     final adjacency = _buildAdjacency(segments);
-    final season = _resolveSeason(request.seasonMode, currentTemperatureC);
+    final season = _resolveSeason(request.seasonMode, weather.temperatureC);
 
     final primary = _search(
       nodesById: nodesById,
@@ -99,8 +99,11 @@ class RoutingEngine {
       comfortScore: _comfortScore(shadePercent, shortestAlt),
       shadePercent: shadePercent,
       sunPercent: 100 - shadePercent,
-      windLabel: _windLabel(windSpeedKph),
-      tip: _tipFor(request.goal, season),
+      naturalBreezePercent: _naturalBreezePercent(weather.windSpeedKph),
+      pavedAccessiblePercent: _pavedAccessiblePercent(primary.edges),
+      windLabel: _windLabel(weather.windSpeedKph),
+      weather: weather,
+      tip: _tipFor(request.goal, season, primary.totalDistance, shadePercent, shortestAlt),
       seasonMode: request.seasonMode,
       goal: request.goal,
       alternatives: alternatives,
@@ -271,6 +274,29 @@ class RoutingEngine {
     return Duration(seconds: seconds.round());
   }
 
+  /// Heuristic, not a real airflow measurement — no per-segment wind-
+  /// exposure data exists to justify anything more precise. Linear scale
+  /// where 25 km/h and above reads as maximally breezy.
+  double _naturalBreezePercent(double windSpeedKph) {
+    return (windSpeedKph / 25 * 100).clamp(0, 100);
+  }
+
+  /// Distance-weighted share of the route's segments marked
+  /// `isPaved == true` — same weighting pattern as [_shadePercent], for the
+  /// same reason (one long unpaved stretch shouldn't be hidden by several
+  /// short paved ones).
+  double _pavedAccessiblePercent(List<_DirectedEdge> edges) {
+    if (edges.isEmpty) return 100;
+    var totalDistance = 0.0;
+    var pavedDistance = 0.0;
+    for (final edge in edges) {
+      totalDistance += edge.segment.distanceMeters;
+      if (edge.segment.isPaved) pavedDistance += edge.segment.distanceMeters;
+    }
+    if (totalDistance == 0) return 100;
+    return (pavedDistance / totalDistance) * 100;
+  }
+
   String _windLabel(double windSpeedKph) {
     if (windSpeedKph < 8) return 'Calm';
     if (windSpeedKph < 20) return 'Fair';
@@ -278,11 +304,35 @@ class RoutingEngine {
     return 'Strong';
   }
 
-  String _tipFor(RouteOptimizationGoal goal, _ResolvedSeason season) {
+  /// Prefers a real, computed comparison against the shortest alternative
+  /// ("adds 40m to gain 37% more shade") over a generic line — but only
+  /// when that comparison is actually informative (a real detour, a real
+  /// gain). Deliberately does *not* claim to identify which specific
+  /// segment or landmark caused the difference — this engine has no
+  /// mechanism to attribute the gain to a named place, so it doesn't
+  /// pretend to.
+  String _tipFor(
+    RouteOptimizationGoal goal,
+    _ResolvedSeason season,
+    double distanceMeters,
+    double shadePercent,
+    AlternativeRouteSummary? shortestAlt,
+  ) {
     if (goal == RouteOptimizationGoal.shortest) {
       return "This is the shortest path available — comfort wasn't a factor.";
     }
+
     final feature = season == _ResolvedSeason.summer ? 'shade coverage' : 'sun exposure';
+
+    if (shortestAlt != null) {
+      final extraDistance = (distanceMeters - shortestAlt.distanceMeters).round();
+      final comfortGain = (shadePercent - shortestAlt.shadePercent).round();
+      if (extraDistance > 0 && comfortGain > 5) {
+        return 'This route adds ${extraDistance}m over the shortest path to gain '
+            '$comfortGain% more $feature.';
+      }
+    }
+
     final condition = season == _ResolvedSeason.summer ? 'the heat' : 'the cold';
     return 'This route maximizes $feature to keep you comfortable in $condition.';
   }

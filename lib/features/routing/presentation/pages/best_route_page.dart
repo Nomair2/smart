@@ -5,6 +5,7 @@ import '../../domain/entities/route_result.dart';
 import '../widgets/alternative_route_row.dart';
 import '../widgets/comfort_bar.dart';
 import '../widgets/route_stat_chip.dart';
+import 'route_details_page.dart';
 import 'route_guide_page.dart';
 
 class BestRoutePage extends StatelessWidget {
@@ -237,7 +238,9 @@ class BestRoutePage extends StatelessWidget {
                             flex: 2,
                             child: OutlinedButton(
                               onPressed: () {
-                                // TODO: Route Details page using this same result.
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (_) => RouteDetailsPage(result: result)),
+                                );
                               },
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: primaryGreen,

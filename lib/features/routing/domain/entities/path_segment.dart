@@ -17,6 +17,7 @@ class PathSegment extends Equatable {
     required this.geometry,
     required this.shadeScore,
     this.status = PathSegmentStatus.open,
+    this.isPaved = true,
   }) : assert(geometry.length >= 2, 'A segment needs at least its two endpoints'),
        assert(shadeScore >= 0 && shadeScore <= 1, 'shadeScore is a 0-1 fraction');
 
@@ -35,6 +36,13 @@ class PathSegment extends Equatable {
 
   final PathSegmentStatus status;
 
+  /// Whether this segment is a paved, wheelchair/mobility-accessible
+  /// surface. Defaults to `true` — there's no accessibility survey data to
+  /// justify marking any specific segment otherwise yet, so "assumed
+  /// accessible" is the honest default rather than an arbitrary guess.
+
+  final bool isPaved;
+
   late final double distanceMeters = _computeDistance();
 
   double _computeDistance() {
@@ -46,5 +54,6 @@ class PathSegment extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, fromNodeId, toNodeId, geometry, shadeScore, status];
+  List<Object?> get props =>
+      [id, fromNodeId, toNodeId, geometry, shadeScore, status, isPaved];
 }

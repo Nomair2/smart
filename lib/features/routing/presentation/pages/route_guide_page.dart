@@ -9,6 +9,7 @@ import '../cubit/route_guide_state.dart';
 import '../widgets/current_step_card.dart';
 import '../widgets/guide_step_tile.dart';
 import '../widgets/route_schematic_map.dart';
+import 'route_details_page.dart';
 
 class RouteGuidePage extends StatelessWidget {
   const RouteGuidePage({super.key, required this.result});
@@ -178,7 +179,12 @@ class _RouteGuideView extends StatelessWidget {
                         flex: 2,
                         child: OutlinedButton(
                           onPressed: () {
-                            // TODO: Route Details page using this same result.
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    RouteDetailsPage(result: result),
+                              ),
+                            );
                           },
                           style: OutlinedButton.styleFrom(
                             foregroundColor: primaryGreen,

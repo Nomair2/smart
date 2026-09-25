@@ -88,8 +88,7 @@ class RouteSelectionCubit extends Cubit<RouteSelectionState> {
           seasonMode: state.seasonMode,
           goal: state.goal,
         ),
-        currentTemperatureC: weather.temperatureC,
-        windSpeedKph: weather.windSpeedKph,
+        weather: weather,
       );
 
       if (result == null) {
