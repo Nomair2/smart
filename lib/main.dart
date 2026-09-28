@@ -2,11 +2,15 @@ import 'package:MasarKKU/features/routing/data/noop_voice_guide_service.dart';
 import 'package:MasarKKU/features/routing/data/repositories/fake_campus_repository.dart';
 import 'package:MasarKKU/features/routing/domain/repositories/campus_repository.dart';
 import 'package:MasarKKU/features/routing/domain/voice_guide_service.dart';
+import 'package:MasarKKU/features/weather/data/datasource/open_meteo_data_source.dart';
+import 'package:MasarKKU/features/weather/data/locations/weather_location.dart';
+import 'package:MasarKKU/features/weather/data/reposotories/open_meteo_repository.dart';
+import 'package:MasarKKU/features/weather/domain/weather_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:http/http.dart' as http;
 import 'features/admin/presentation/pages/admin_home_placeholder_page.dart';
 import 'features/auth/data/repositories/firebase_auth_repository.dart';
 import 'features/auth/domain/entities/app_user_role.dart';
@@ -38,6 +42,14 @@ Future<void> main() async {
         // Weather (C1) and recent routes (C4/C7) aren't built yet — see the
         // doc comment on HomeRepository for what swapping this out later
         // needs.
+        RepositoryProvider<WeatherRepository>(
+          create: (_) => OpenMeteoRepository(
+            dataSource: OpenMeteoDataSource(client: http.Client()),
+            latitude: WeatherLocation.latitude,
+            longitude: WeatherLocation.longitude,
+            locationLabel: WeatherLocation.label,
+          ),
+        ),
         RepositoryProvider<HomeRepository>(create: (_) => FakeHomeRepository()),
         RepositoryProvider<CampusRepository>(
           create: (_) => FakeCampusRepository(),

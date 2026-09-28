@@ -1,5 +1,4 @@
 import '../entities/recent_route_summary.dart';
-import '../entities/weather_snapshot.dart';
 
 /// Everything the home screen needs beyond the user's own profile
 /// (ProfileRepository already covers name/season preference).
@@ -11,7 +10,5 @@ import '../entities/weather_snapshot.dart';
 /// provider in main.dart for a real implementation once those exist; no
 /// other file in this feature needs to change.
 abstract class HomeRepository {
-  Future<WeatherSnapshot> fetchCurrentWeather();
-
   Future<List<RecentRouteSummary>> fetchRecentRoutes({int limit = 5});
 }

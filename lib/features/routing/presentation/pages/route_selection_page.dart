@@ -1,3 +1,4 @@
+import 'package:MasarKKU/features/weather/domain/weather_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -28,7 +29,7 @@ class RouteSelectionPage extends StatelessWidget {
     return BlocProvider(
       create: (context) => RouteSelectionCubit(
         campusRepository: context.read<CampusRepository>(),
-        homeRepository: context.read<HomeRepository>(),
+        weatherRepository: context.read<WeatherRepository>(),
         profileRepository: context.read<ProfileRepository>(),
       ),
       child: _RouteSelectionView(onBack: onBack),
@@ -53,20 +54,25 @@ class _RouteSelectionView extends StatelessWidget {
           final cubit = context.read<RouteSelectionCubit>();
 
           if (state.status == RouteSelectionStatus.loadingGraph) {
-            return const SafeArea(child: Center(child: CircularProgressIndicator()));
+            return const SafeArea(
+              child: Center(child: CircularProgressIndicator()),
+            );
           }
           if (state.status == RouteSelectionStatus.graphError) {
             return SafeArea(
               child: Center(
                 child: Padding(
                   padding: const EdgeInsets.all(24),
-                  child: Text(state.errorMessage ?? 'Could not load the campus map.'),
+                  child: Text(
+                    state.errorMessage ?? 'Could not load the campus map.',
+                  ),
                 ),
               ),
             );
           }
 
-          final sameNode = state.origin != null &&
+          final sameNode =
+              state.origin != null &&
               state.destination != null &&
               state.origin!.id == state.destination!.id;
 
@@ -90,28 +96,49 @@ class _RouteSelectionView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         InkWell(
-                          onTap: onBack ?? () => Navigator.of(context).maybePop(),
+                          onTap:
+                              onBack ?? () => Navigator.of(context).maybePop(),
                           borderRadius: BorderRadius.circular(20),
                           child: Container(
                             width: 36,
                             height: 36,
-                            decoration:
-                                BoxDecoration(color: Colors.white.withOpacity(0.18), shape: BoxShape.circle),
-                            child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.18),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.arrow_back_ios_new_rounded,
+                              color: Colors.white,
+                              size: 16,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 16),
                         const Row(
                           children: [
-                            Text('Select Route',
-                                style: TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w800)),
+                            Text(
+                              'Select Route',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 26,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
                             SizedBox(width: 8),
-                            Text('\ud83d\udcd8', style: TextStyle(fontSize: 22)),
+                            Text(
+                              '\ud83d\udcd8',
+                              style: TextStyle(fontSize: 22),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 4),
-                        const Text('Choose your start & destination',
-                            style: TextStyle(color: Colors.white70, fontSize: 13.5)),
+                        const Text(
+                          'Choose your start & destination',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 13.5,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -121,7 +148,9 @@ class _RouteSelectionView extends StatelessWidget {
                       padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
                       decoration: const BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(28),
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -136,45 +165,83 @@ class _RouteSelectionView extends StatelessWidget {
                           ),
                           if (sameNode) ...[
                             const SizedBox(height: 8),
-                            const Text('Starting point and destination can\'t be the same.',
-                                style: TextStyle(fontSize: 12, color: Color(0xFFE0574C))),
+                            const Text(
+                              'Starting point and destination can\'t be the same.',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFFE0574C),
+                              ),
+                            ),
                           ],
                           if (state.errorMessage != null && !sameNode) ...[
                             const SizedBox(height: 8),
-                            Text(state.errorMessage!, style: const TextStyle(fontSize: 12, color: Color(0xFFE0574C))),
+                            Text(
+                              state.errorMessage!,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFFE0574C),
+                              ),
+                            ),
                           ],
                           const SizedBox(height: 22),
-                          Text('NAVIGATION MODE',
-                              style: TextStyle(
-                                  fontSize: 11.5, fontWeight: FontWeight.w700, letterSpacing: 0.6, color: Colors.grey[500])),
+                          Text(
+                            'NAVIGATION MODE',
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.6,
+                              color: Colors.grey[500],
+                            ),
+                          ),
                           const SizedBox(height: 10),
                           Row(
                             children: SeasonMode.values
-                                .map((mode) => Padding(
-                                      padding: EdgeInsets.only(right: mode == SeasonMode.values.last ? 0 : 10),
-                                      child: SeasonModeCard(
-                                        mode: mode,
-                                        selected: state.seasonMode == mode,
-                                        onTap: () => cubit.seasonModeChanged(mode),
-                                      ),
-                                    ))
+                                .map(
+                                  (mode) => Padding(
+                                    padding: EdgeInsets.only(
+                                      right: mode == SeasonMode.values.last
+                                          ? 0
+                                          : 10,
+                                    ),
+                                    child: SeasonModeCard(
+                                      mode: mode,
+                                      selected: state.seasonMode == mode,
+                                      onTap: () =>
+                                          cubit.seasonModeChanged(mode),
+                                    ),
+                                  ),
+                                )
                                 .toList(),
                           ),
                           const SizedBox(height: 22),
-                          Text('OPTIMIZE FOR',
-                              style: TextStyle(
-                                  fontSize: 11.5, fontWeight: FontWeight.w700, letterSpacing: 0.6, color: Colors.grey[500])),
+                          Text(
+                            'OPTIMIZE FOR',
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.6,
+                              color: Colors.grey[500],
+                            ),
+                          ),
                           const SizedBox(height: 10),
                           Row(
                             children: RouteOptimizationGoal.values
-                                .map((goal) => Padding(
-                                      padding: EdgeInsets.only(right: goal == RouteOptimizationGoal.values.last ? 0 : 10),
-                                      child: OptimizationGoalPill(
-                                        goal: goal,
-                                        selected: state.goal == goal,
-                                        onTap: () => cubit.goalChanged(goal),
-                                      ),
-                                    ))
+                                .map(
+                                  (goal) => Padding(
+                                    padding: EdgeInsets.only(
+                                      right:
+                                          goal ==
+                                              RouteOptimizationGoal.values.last
+                                          ? 0
+                                          : 10,
+                                    ),
+                                    child: OptimizationGoalPill(
+                                      goal: goal,
+                                      selected: state.goal == goal,
+                                      onTap: () => cubit.goalChanged(goal),
+                                    ),
+                                  ),
+                                )
                                 .toList(),
                           ),
                           const SizedBox(height: 26),
@@ -184,29 +251,46 @@ class _RouteSelectionView extends StatelessWidget {
                             child: ElevatedButton.icon(
                               onPressed: state.canSearch
                                   ? () async {
-                                      final result = await cubit.findBestRoute();
+                                      final result = await cubit
+                                          .findBestRoute();
                                       if (result != null && context.mounted) {
                                         Navigator.of(context).push(
-                                          MaterialPageRoute(builder: (_) => BestRoutePage(result: result)),
+                                          MaterialPageRoute(
+                                            builder: (_) =>
+                                                BestRoutePage(result: result),
+                                          ),
                                         );
                                       }
                                     }
                                   : null,
-                              icon: state.status == RouteSelectionStatus.searching
+                              icon:
+                                  state.status == RouteSelectionStatus.searching
                                   ? const SizedBox(
                                       width: 18,
                                       height: 18,
-                                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
                                     )
-                                  : const Icon(Icons.navigation_rounded, size: 18),
+                                  : const Icon(
+                                      Icons.navigation_rounded,
+                                      size: 18,
+                                    ),
                               label: const Text('Find Best Route'),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: primaryGreen,
                                 foregroundColor: Colors.white,
-                                disabledBackgroundColor: primaryGreen.withOpacity(0.5),
+                                disabledBackgroundColor: primaryGreen
+                                    .withOpacity(0.5),
                                 elevation: 0,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                textStyle: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
                             ),
                           ),

@@ -1,3 +1,5 @@
+import 'package:MasarKKU/features/home/domain/repositories/weather_repository.dart';
+import 'package:MasarKKU/features/weather/domain/weather_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -14,7 +16,11 @@ import '../widgets/season_toggle_card.dart';
 import '../widgets/weather_card.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key, required this.onOpenRoutes, required this.onOpenProfile});
+  const HomePage({
+    super.key,
+    required this.onOpenRoutes,
+    required this.onOpenProfile,
+  });
 
   /// Both are shell-tab switches, not pushed routes — see [MainShellPage].
   final VoidCallback onOpenRoutes;
@@ -26,6 +32,7 @@ class HomePage extends StatelessWidget {
       create: (context) => HomeCubit(
         context.read<ProfileRepository>(),
         context.read<HomeRepository>(),
+        context.read<WeatherRepository>(),
       ),
       child: Scaffold(
         backgroundColor: const Color(0xFFF6F8F7),
@@ -39,7 +46,9 @@ class HomePage extends StatelessWidget {
                 return Center(
                   child: Padding(
                     padding: const EdgeInsets.all(24),
-                    child: Text(state.errorMessage ?? 'Could not load the home screen.'),
+                    child: Text(
+                      state.errorMessage ?? 'Could not load the home screen.',
+                    ),
                   ),
                 );
               }
@@ -48,7 +57,8 @@ class HomePage extends StatelessWidget {
               }
 
               final cubit = context.read<HomeCubit>();
-              final isSummerActive = profile.defaultSeasonMode == SeasonMode.summer;
+              final isSummerActive =
+                  profile.defaultSeasonMode == SeasonMode.summer;
 
               return RefreshIndicator(
                 onRefresh: cubit.refresh,
@@ -59,16 +69,20 @@ class HomePage extends StatelessWidget {
                       greeting: _greeting(),
                       firstName: profile.fullName.split(' ').first,
                       weather: weather,
-                      modeLabel: '${profile.defaultSeasonMode.label} Mode Active',
+                      modeLabel:
+                          '${profile.defaultSeasonMode.label} Mode Active',
                       onAvatarTap: onOpenProfile,
                     ),
                     const SizedBox(height: 20),
-                    Text('QUICK ACTIONS',
-                        style: TextStyle(
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.6,
-                            color: Colors.grey[500])),
+                    Text(
+                      'QUICK ACTIONS',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.6,
+                        color: Colors.grey[500],
+                      ),
+                    ),
                     const SizedBox(height: 10),
                     Row(
                       children: [
@@ -86,8 +100,9 @@ class HomePage extends StatelessWidget {
                           onTap: () => showSeasonModePicker(
                             context,
                             current: profile.defaultSeasonMode,
-                            onSelected: (mode) =>
-                                context.read<ProfileRepository>().updateDefaultSeasonMode(mode),
+                            onSelected: (mode) => context
+                                .read<ProfileRepository>()
+                                .updateDefaultSeasonMode(mode),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -101,7 +116,10 @@ class HomePage extends StatelessWidget {
                     ),
                     if (isSummerActive) ...[
                       const SizedBox(height: 16),
-                      SeasonToggleCard(value: isSummerActive, onChanged: cubit.toggleSummerMode),
+                      SeasonToggleCard(
+                        value: isSummerActive,
+                        onChanged: cubit.toggleSummerMode,
+                      ),
                     ],
                     const SizedBox(height: 16),
                     FindRouteCta(onTap: onOpenRoutes),
@@ -109,26 +127,38 @@ class HomePage extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('RECENT ROUTES',
-                            style: TextStyle(
-                                fontSize: 11.5,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.6,
-                                color: Colors.grey[500])),
+                        Text(
+                          'RECENT ROUTES',
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.6,
+                            color: Colors.grey[500],
+                          ),
+                        ),
                         InkWell(
                           onTap: onOpenRoutes,
-                          child: const Text('See All',
-                              style: TextStyle(
-                                  fontSize: 12.5, fontWeight: FontWeight.w600, color: Color(0xFF1E5B3D))),
+                          child: const Text(
+                            'See All',
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF1E5B3D),
+                            ),
+                          ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 10),
                     if (state.recentRoutes.isEmpty)
-                      Text('No routes yet — try Find Route above.',
-                          style: TextStyle(fontSize: 13, color: Colors.grey[500]))
+                      Text(
+                        'No routes yet — try Find Route above.',
+                        style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+                      )
                     else
-                      ...state.recentRoutes.map((route) => RecentRouteTile(route: route)),
+                      ...state.recentRoutes.map(
+                        (route) => RecentRouteTile(route: route),
+                      ),
                   ],
                 ),
               );

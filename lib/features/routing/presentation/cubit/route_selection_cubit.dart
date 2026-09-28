@@ -1,3 +1,5 @@
+import 'package:MasarKKU/features/home/domain/repositories/weather_repository.dart';
+import 'package:MasarKKU/features/weather/domain/weather_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/domain/entities/season_mode.dart';
@@ -8,6 +10,7 @@ import '../../domain/entities/path_segment.dart';
 import '../../domain/entities/route_optimization_goal.dart';
 import '../../domain/entities/route_request.dart';
 import '../../domain/entities/route_result.dart';
+
 import '../../domain/repositories/campus_repository.dart';
 import '../../domain/routing_engine.dart';
 import 'route_selection_state.dart';
@@ -15,16 +18,16 @@ import 'route_selection_state.dart';
 class RouteSelectionCubit extends Cubit<RouteSelectionState> {
   RouteSelectionCubit({
     required CampusRepository campusRepository,
-    required HomeRepository homeRepository,
+    required WeatherRepository weatherRepository,
     required ProfileRepository profileRepository,
-  })  : _campusRepository = campusRepository,
-        _homeRepository = homeRepository,
-        super(const RouteSelectionState()) {
+  }) : _campusRepository = campusRepository,
+       _weatherRepository = weatherRepository,
+       super(const RouteSelectionState()) {
     _init(profileRepository);
   }
 
   final CampusRepository _campusRepository;
-  final HomeRepository _homeRepository;
+  final WeatherRepository _weatherRepository;
   final RoutingEngine _engine = RoutingEngine();
 
   List<CampusNode> _allNodes = const [];
@@ -48,26 +51,38 @@ class RouteSelectionCubit extends Cubit<RouteSelectionState> {
         // this screen shouldn't be blocked by a profile hiccup.
       }
 
-      emit(state.copyWith(
-        status: RouteSelectionStatus.ready,
-        selectableNodes: nodes.where((n) => n.isSelectable).toList(),
-        seasonMode: initialSeason,
-      ));
+      emit(
+        state.copyWith(
+          status: RouteSelectionStatus.ready,
+          selectableNodes: nodes.where((n) => n.isSelectable).toList(),
+          seasonMode: initialSeason,
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(status: RouteSelectionStatus.graphError, errorMessage: e.toString()));
+      emit(
+        state.copyWith(
+          status: RouteSelectionStatus.graphError,
+          errorMessage: e.toString(),
+        ),
+      );
     }
   }
 
-  void originChanged(CampusNode node) => emit(state.copyWith(origin: node, errorMessage: null));
+  void originChanged(CampusNode node) =>
+      emit(state.copyWith(origin: node, errorMessage: null));
 
   void destinationChanged(CampusNode node) =>
       emit(state.copyWith(destination: node, errorMessage: null));
 
-  void swapPoints() => emit(state.copyWith(origin: state.destination, destination: state.origin));
+  void swapPoints() => emit(
+    state.copyWith(origin: state.destination, destination: state.origin),
+  );
 
-  void seasonModeChanged(SeasonMode mode) => emit(state.copyWith(seasonMode: mode));
+  void seasonModeChanged(SeasonMode mode) =>
+      emit(state.copyWith(seasonMode: mode));
 
-  void goalChanged(RouteOptimizationGoal goal) => emit(state.copyWith(goal: goal));
+  void goalChanged(RouteOptimizationGoal goal) =>
+      emit(state.copyWith(goal: goal));
 
   /// Runs the search and returns the result directly rather than storing it
   /// in this cubit's state — Best Route Found takes the [RouteResult] as a
@@ -76,9 +91,14 @@ class RouteSelectionCubit extends Cubit<RouteSelectionState> {
   Future<RouteResult?> findBestRoute() async {
     if (!state.canSearch) return null;
 
-    emit(state.copyWith(status: RouteSelectionStatus.searching, errorMessage: null));
+    emit(
+      state.copyWith(
+        status: RouteSelectionStatus.searching,
+        errorMessage: null,
+      ),
+    );
     try {
-      final weather = await _homeRepository.fetchCurrentWeather();
+      final weather = await _weatherRepository.fetchCurrentWeather();
       final result = _engine.findRoute(
         nodes: _allNodes,
         segments: _allSegments,
@@ -92,20 +112,24 @@ class RouteSelectionCubit extends Cubit<RouteSelectionState> {
       );
 
       if (result == null) {
-        emit(state.copyWith(
-          status: RouteSelectionStatus.ready,
-          errorMessage: 'No walkable route found between those two points.',
-        ));
+        emit(
+          state.copyWith(
+            status: RouteSelectionStatus.ready,
+            errorMessage: 'No walkable route found between those two points.',
+          ),
+        );
         return null;
       }
 
       emit(state.copyWith(status: RouteSelectionStatus.ready));
       return result;
     } catch (_) {
-      emit(state.copyWith(
-        status: RouteSelectionStatus.ready,
-        errorMessage: 'Could not compute a route. Please try again.',
-      ));
+      emit(
+        state.copyWith(
+          status: RouteSelectionStatus.ready,
+          errorMessage: 'Could not compute a route. Please try again.',
+        ),
+      );
       return null;
     }
   }

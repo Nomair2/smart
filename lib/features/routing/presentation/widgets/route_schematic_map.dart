@@ -1,16 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../../../../core/domain/entities/geo_coordinate.dart';
 
-/// A lightweight, custom-drawn stand-in for a real basemap — not
-/// `flutter_map`. The mockup's map is itself an abstract schematic (flat
-/// building blocks, a dashed line, simple markers), not real tile imagery,
-/// so this matches what's actually being asked for rather than defaulting
-/// to OSM tiles, which would need a tile-provider decision and a new
-/// dependency neither of which this screen needs to make that call on.
-/// Real basemap rendering (report requirement C6) is a deliberate later
-/// upgrade, not something this widget is standing in to fake.
-class RouteSchematicMap extends StatelessWidget {
+/// A real street map (OpenStreetMap tiles via `flutter_map`, both free/
+/// open-source — no API key, no billing account) showing the actual
+/// route: start/destination/current-position markers over real streets.
+/// This replaces the earlier abstract, custom-drawn schematic version
+/// and fulfils report requirement C6 (real basemap rendering) that the
+/// schematic deliberately deferred.
+///
+/// Tile provider: the public `tile.openstreetmap.org` server. It's free
+/// and needs no signup, but OSM's tile usage policy asks for a genuine
+/// `userAgentPackageName` (see below — replace the placeholder with
+/// your app's actual applicationId) and reasonable request volume; if
+/// this app gets real traffic, move to a free-tier provider meant for
+/// production apps (MapTiler, Stadia Maps, Thunderforest all have free
+/// tiers with sign-up) or self-host tiles instead of hammering OSM's
+/// donated server directly.
+class RouteSchematicMap extends StatefulWidget {
   const RouteSchematicMap({
     super.key,
     required this.geometry,
@@ -27,187 +36,231 @@ class RouteSchematicMap extends StatelessWidget {
 
   final double height;
 
-  static const Color _background = Color(0xFFDCEAE0);
-  static const Color _building = Color(0xFFC3DBCB);
   static const Color primaryGreen = Color(0xFF1E5B3D);
+  static const Color destinationRed = Color(0xFFE0574C);
+
+  // Approximate — the KKU Stadium, which sits on the Abha campus — used
+  // only to center the map before real geometry arrives. Swap for an
+  // actual campus-center coordinate once you have one.
+  static const LatLng _placeholderCenter = LatLng(18.0976, 42.7206);
 
   @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: height,
-      width: double.infinity,
-      child: ClipRect(
-        child: CustomPaint(
-          painter: _SchematicPainter(geometry: geometry, progress: progress.clamp(0, 1)),
-          size: Size.infinite,
-        ),
+  State<RouteSchematicMap> createState() => _RouteSchematicMapState();
+}
+
+class _RouteSchematicMapState extends State<RouteSchematicMap> {
+  final MapController _mapController = MapController();
+
+  List<LatLng> get _points =>
+      widget.geometry.map((g) => LatLng(g.latitude, g.longitude)).toList();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _fitBounds());
+  }
+
+  @override
+  void didUpdateWidget(covariant RouteSchematicMap oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.geometry != widget.geometry) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _fitBounds());
+    }
+  }
+
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
+  }
+
+  void _fitBounds() {
+    final points = _points;
+    if (points.length < 2 || !mounted) return;
+    _mapController.fitCamera(
+      CameraFit.bounds(
+        bounds: LatLngBounds.fromPoints(points),
+        padding: const EdgeInsets.all(32),
       ),
     );
   }
-}
 
-class _SchematicPainter extends CustomPainter {
-  _SchematicPainter({required this.geometry, required this.progress});
-
-  final List<GeoCoordinate> geometry;
-  final double progress;
-
-  static const Color _background = RouteSchematicMap._background;
-  static const Color _building = RouteSchematicMap._building;
-  static const Color primaryGreen = RouteSchematicMap.primaryGreen;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    canvas.drawRect(Offset.zero & size, Paint()..color = _background);
-    _drawDecorativeBuildings(canvas, size);
-
-    if (geometry.length < 2) return;
-
-    final points = _project(geometry, size, padding: 28);
-    _drawDashedPath(canvas, points);
-
-    // Start marker
-    _drawDot(canvas, points.first, 6, primaryGreen, border: true);
-    // Destination marker (simple pin)
-    _drawPin(canvas, points.last, const Color(0xFFE0574C));
-    // Current-position marker, interpolated along the projected path.
-    final current = _pointAtFraction(points, progress);
-    _drawCurrentPositionMarker(canvas, current);
-  }
-
-  void _drawDecorativeBuildings(Canvas canvas, Size size) {
-    // Fixed, non-random layout — illustrative building blocks, not tied to
-    // real footprints (no building geometry data exists for that yet).
-    final rects = [
-      Rect.fromLTWH(size.width * 0.06, size.height * 0.10, size.width * 0.22, size.height * 0.28),
-      Rect.fromLTWH(size.width * 0.06, size.height * 0.55, size.width * 0.22, size.height * 0.30),
-      Rect.fromLTWH(size.width * 0.72, size.height * 0.08, size.width * 0.22, size.height * 0.26),
-      Rect.fromLTWH(size.width * 0.72, size.height * 0.58, size.width * 0.22, size.height * 0.28),
-      Rect.fromLTWH(size.width * 0.40, size.height * 0.06, size.width * 0.20, size.height * 0.18),
-    ];
-    final paint = Paint()..color = _building;
-    for (final rect in rects) {
-      canvas.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(10)), paint);
-    }
-  }
-
-  List<Offset> _project(List<GeoCoordinate> points, Size size, {required double padding}) {
-    var minLat = points.first.latitude, maxLat = points.first.latitude;
-    var minLng = points.first.longitude, maxLng = points.first.longitude;
-    for (final p in points) {
-      if (p.latitude < minLat) minLat = p.latitude;
-      if (p.latitude > maxLat) maxLat = p.latitude;
-      if (p.longitude < minLng) minLng = p.longitude;
-      if (p.longitude > maxLng) maxLng = p.longitude;
-    }
-    final latSpan = (maxLat - minLat).abs() < 1e-9 ? 1e-9 : (maxLat - minLat);
-    final lngSpan = (maxLng - minLng).abs() < 1e-9 ? 1e-9 : (maxLng - minLng);
-
-    final usableWidth = size.width - padding * 2;
-    final usableHeight = size.height - padding * 2;
-
-    return points.map((p) {
-      final normX = (p.longitude - minLng) / lngSpan;
-      final normY = (p.latitude - minLat) / latSpan;
-      // Latitude increases northward (up on screen), so flip Y.
-      return Offset(
-        padding + normX * usableWidth,
-        padding + (1 - normY) * usableHeight,
-      );
-    }).toList();
-  }
-
-  void _drawDashedPath(Canvas canvas, List<Offset> points) {
-    final paint = Paint()
-      ..color = primaryGreen
-      ..strokeWidth = 3
-      ..strokeCap = StrokeCap.round;
-
-    const dashLength = 7.0;
-    const gapLength = 5.0;
-    var drawingDash = true;
-    var remaining = dashLength;
-
-    for (var i = 1; i < points.length; i++) {
-      var start = points[i - 1];
-      final end = points[i];
-      var segmentLength = (end - start).distance;
-      final direction = segmentLength == 0 ? Offset.zero : (end - start) / segmentLength;
-
-      while (segmentLength > 0) {
-        final step = remaining < segmentLength ? remaining : segmentLength;
-        final next = start + direction * step;
-        if (drawingDash) {
-          canvas.drawLine(start, next, paint);
-        }
-        start = next;
-        segmentLength -= step;
-        remaining -= step;
-        if (remaining <= 0) {
-          drawingDash = !drawingDash;
-          remaining = drawingDash ? dashLength : gapLength;
-        }
-      }
-    }
-  }
-
-  Offset _pointAtFraction(List<Offset> points, double fraction) {
+  /// Interpolates along the route geometry by great-circle distance —
+  /// the geographic equivalent of the old pixel-space _pointAtFraction.
+  LatLng? _currentPosition(List<LatLng> points, double fraction) {
+    if (points.isEmpty) return null;
     if (points.length < 2) return points.first;
+
+    const distanceCalc = Distance();
     final segmentLengths = <double>[];
     var total = 0.0;
     for (var i = 1; i < points.length; i++) {
-      final len = (points[i] - points[i - 1]).distance;
-      segmentLengths.add(len);
-      total += len;
+      final d = distanceCalc(points[i - 1], points[i]);
+      segmentLengths.add(d);
+      total += d;
     }
     if (total == 0) return points.first;
 
-    var target = total * fraction;
+    var target = total * fraction.clamp(0, 1);
     for (var i = 0; i < segmentLengths.length; i++) {
       if (target <= segmentLengths[i]) {
         final t = segmentLengths[i] == 0 ? 0.0 : target / segmentLengths[i];
-        return Offset.lerp(points[i], points[i + 1], t)!;
+        return LatLng(
+          points[i].latitude +
+              (points[i + 1].latitude - points[i].latitude) * t,
+          points[i].longitude +
+              (points[i + 1].longitude - points[i].longitude) * t,
+        );
       }
       target -= segmentLengths[i];
     }
     return points.last;
   }
 
-  void _drawDot(Canvas canvas, Offset center, double radius, Color color, {bool border = false}) {
-    canvas.drawCircle(center, radius, Paint()..color = color);
-    if (border) {
-      canvas.drawCircle(
-        center,
-        radius,
-        Paint()
-          ..color = Colors.white
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2,
-      );
-    }
-  }
+  @override
+  Widget build(BuildContext context) {
+    final points = _points;
+    final current = _currentPosition(points, widget.progress);
 
-  void _drawPin(Canvas canvas, Offset tip, Color color) {
-    final paint = Paint()..color = color;
-    final center = tip.translate(0, -10);
-    canvas.drawCircle(center, 9, paint);
-    final path = Path()
-      ..moveTo(center.dx - 6, center.dy + 5)
-      ..lineTo(tip.dx, tip.dy)
-      ..lineTo(center.dx + 6, center.dy + 5)
-      ..close();
-    canvas.drawPath(path, paint);
-    canvas.drawCircle(center, 3.5, Paint()..color = Colors.white);
+    return SizedBox(
+      height: widget.height,
+      width: double.infinity,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: FlutterMap(
+          mapController: _mapController,
+          options: MapOptions(
+            initialCenter: LatLng(18.247727, 42.559913),
+            // points.isNotEmpty
+            //     ? points.first
+            //     : RouteSchematicMap._placeholderCenter,
+            initialZoom: 16,
+            interactionOptions: const InteractionOptions(
+              flags:
+                  InteractiveFlag.pinchZoom |
+                  InteractiveFlag.drag |
+                  InteractiveFlag.doubleTapZoom,
+            ),
+          ),
+          children: [
+            TileLayer(
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              // Replace with this app's real applicationId (see
+              // android/app/build.gradle or ios Info.plist) before
+              // shipping — required by OSM's tile usage policy.
+              userAgentPackageName: 'com.example.smartpath',
+              maxZoom: 19,
+            ),
+            if (points.length >= 2)
+              PolylineLayer(
+                polylines: [
+                  Polyline(
+                    points: points,
+                    color: RouteSchematicMap.primaryGreen,
+                    strokeWidth: 4,
+                  ),
+                ],
+              ),
+            MarkerLayer(
+              markers: [
+                if (points.isNotEmpty)
+                  Marker(
+                    point: points.first,
+                    width: 22,
+                    height: 22,
+                    child: _StartMarker(color: RouteSchematicMap.primaryGreen),
+                  ),
+                if (points.length > 1)
+                  Marker(
+                    point: points.last,
+                    width: 30,
+                    height: 30,
+                    child: _DestinationMarker(
+                      color: RouteSchematicMap.destinationRed,
+                    ),
+                  ),
+                if (current != null)
+                  Marker(
+                    point: current,
+                    width: 26,
+                    height: 26,
+                    child: _CurrentPositionMarker(
+                      color: RouteSchematicMap.primaryGreen,
+                    ),
+                  ),
+              ],
+            ),
+          ],
+          // nonRotatedChildren: [
+          //   AttributionWidget.defaultWidget(
+          //     source: 'OpenStreetMap contributors',
+          //     onSourceTapped: null,
+          //   ),
+          // ],
+        ),
+      ),
+    );
   }
+}
 
-  void _drawCurrentPositionMarker(Canvas canvas, Offset center) {
-    canvas.drawCircle(center, 12, Paint()..color = Colors.black26);
-    canvas.drawCircle(center, 11, Paint()..color = Colors.white);
-    canvas.drawCircle(center, 5, Paint()..color = primaryGreen);
-  }
+class _StartMarker extends StatelessWidget {
+  const _StartMarker({required this.color});
+  final Color color;
 
   @override
-  bool shouldRepaint(covariant _SchematicPainter oldDelegate) {
-    return oldDelegate.geometry != geometry || oldDelegate.progress != progress;
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 2.5),
+        boxShadow: const [
+          BoxShadow(color: Colors.black26, blurRadius: 3, offset: Offset(0, 1)),
+        ],
+      ),
+    );
+  }
+}
+
+class _DestinationMarker extends StatelessWidget {
+  const _DestinationMarker({required this.color});
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 2.5),
+        boxShadow: const [
+          BoxShadow(color: Colors.black38, blurRadius: 4, offset: Offset(0, 1)),
+        ],
+      ),
+      child: const Icon(Icons.flag, color: Colors.white, size: 14),
+    );
+  }
+}
+
+class _CurrentPositionMarker extends StatelessWidget {
+  const _CurrentPositionMarker({required this.color});
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 5)],
+      ),
+      child: Center(
+        child: Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+      ),
+    );
   }
 }

@@ -3,115 +3,201 @@ import '../../domain/entities/campus_node.dart';
 import '../../domain/entities/path_segment.dart';
 import '../../domain/repositories/campus_repository.dart';
 
-/// Illustrative campus graph, not a survey — 12 destinations (matching the
-/// Select Route dropdown) connected through 6 real intersection nodes with
-/// hand-traced, multi-point path geometry. This is deliberately *not* just
-/// destinations wired directly to each other: without intersections, every
-/// origin/destination pair would have exactly one physical route, and
-/// Comfort/Shortest/Balanced would always compute the same path.
+/// Real pilot-area data for one corner of KKU's Al-Qariqir campus (Guraiger
+/// district) — Building A, Building G, the Loco Cafe, the Library, and
+/// Starbucks — replacing the earlier fully-fictional 12-destination set.
+/// Smaller, but honest: everything here traces back to either a verified
+/// coordinate or a specific photo, not an invented layout. See the
+/// conversation this was built in for the source photo and reasoning.
 ///
-/// Coordinates are anchored near Abha (~18.2465, 42.5117) for realistic
-/// map testing later, with small hand-placed offsets — not real KKU
-/// surveyed positions. Swapping this for `FirestoreCampusRepository`, once
-/// B3/B4 (admin endpoint/path management) exist to populate real data, is a
-/// one-line change in main.dart.
+/// ## What's actually verified vs. estimated
+/// [starbucks]'s coordinate is real — confirmed against Google's own place
+/// data (KKU Algreger Complex for Girls building, Guraiger/Al-Qariqir
+/// district), not guessed. Every other node is positioned *relative to*
+/// that one verified point, by reading pixel positions in an annotated
+/// satellite photo and converting to a real-world offset using an assumed
+/// scale (~0.85 m/pixel, based on the photo's approximate visible span —
+/// not calibrated against a second known distance). That means: the
+/// relative direction and shape of this layout should be trustworthy, but
+/// the absolute distances between points are a reasonable estimate, not a
+/// survey. Swap in real GPS coordinates (walked, or from a second verified
+/// reference point) whenever they're available — nothing about the graph
+/// structure below needs to change to accept better coordinates later.
+///
+/// ## Gate numbering is per-building, not campus-wide
+/// Building A has gates 6, 9, and 11; Building G currently has one gate,
+/// also numbered 9. Those are two different physical doors that happen to
+/// share a number — node IDs disambiguate them (`bldg_a_gate_9` vs.
+/// `bldg_g_gate_9`), and display names spell out which building each gate
+/// belongs to so the Select Route dropdown is never ambiguous.
+///
+/// ## Still not real
+/// `shadeScore` and `isPaved` below are still illustrative placeholders —
+/// nothing about this update supplies real shade-survey data, only real
+/// positions. The one node without a confirmed number is the north
+/// entrance — its gate number wasn't legible in the source photo, so it's
+/// modeled without one rather than inventing one.
 class FakeCampusRepository implements CampusRepository {
-  static const _baseLat = 18.2465;
-  static const _baseLng = 42.5117;
+  // Verified anchor — Google Places, not estimated.
+  static const GeoCoordinate _starbucksLocation = GeoCoordinate(
+    latitude: 18.249769,
+    longitude: 42.558781,
+  );
 
-  static GeoCoordinate _pt(double dLat, double dLng) =>
-      GeoCoordinate(latitude: _baseLat + dLat, longitude: _baseLng + dLng);
+  static const _metersPerDegreeLat = 111320.0;
+  // cos(18.25°) ≈ 0.9498 — longitude degrees are shorter than latitude
+  // degrees this close to the equator-relative latitude of Abha.
+  static const _metersPerDegreeLng = _metersPerDegreeLat * 0.9498;
 
-  // ---- Destinations (report Table 7, node_type gate/building_external) ----
-  static final mainGate = CampusNode(
-      id: 'gate_1', code: 'G1', name: 'Main Gate (Gate 1)', type: CampusNodeType.gate, location: _pt(-0.0026, -0.0002));
-  static final gate2East = CampusNode(
-      id: 'gate_2', code: 'G2', name: 'Gate 2 — East', type: CampusNodeType.gate, location: _pt(0.0002, 0.0026));
-  static final gate3South = CampusNode(
-      id: 'gate_3', code: 'G3', name: 'Gate 3 — South', type: CampusNodeType.gate, location: _pt(-0.0024, -0.0016));
-  static final gate4West = CampusNode(
-      id: 'gate_4', code: 'G4', name: 'Gate 4 — West', type: CampusNodeType.gate, location: _pt(-0.0004, -0.0026));
-  static final csItBuilding = CampusNode(
-      id: 'bldg_cs_it', name: 'CS & IT Building', type: CampusNodeType.buildingExternal, location: _pt(0.0012, 0.0016));
-  static final engineeringBuilding = CampusNode(
-      id: 'bldg_eng', name: 'Engineering Building', type: CampusNodeType.buildingExternal, location: _pt(0.0020, 0.0008));
-  static final library = CampusNode(
-      id: 'bldg_library', name: 'Library', type: CampusNodeType.buildingExternal, location: _pt(0.0004, 0.0008));
-  static final adminBuilding = CampusNode(
-      id: 'bldg_admin', name: 'Admin Building', type: CampusNodeType.buildingExternal, location: _pt(-0.0008, 0.0006));
-  static final medicalCollege = CampusNode(
-      id: 'bldg_medical', name: 'Medical College', type: CampusNodeType.buildingExternal, location: _pt(0.0022, -0.0008));
-  static final mosque = CampusNode(
-      id: 'poi_mosque', name: 'Mosque', type: CampusNodeType.buildingExternal, location: _pt(-0.0002, 0.0004));
-  static final studentCenter = CampusNode(
-      id: 'bldg_student_center', name: 'Student Center', type: CampusNodeType.buildingExternal, location: _pt(0.0008, 0.0002));
-  static final cafeteria = CampusNode(
-      id: 'bldg_cafeteria', name: 'Cafeteria', type: CampusNodeType.buildingExternal, location: _pt(0.0014, 0.0002));
-
-  // ---- Intersections — real decision points, never shown in the UI ----
-  static final _i1 = CampusNode(id: 'x_1', type: CampusNodeType.intersection, location: _pt(-0.0014, -0.0004));
-  static final _i2 = CampusNode(id: 'x_2', type: CampusNodeType.intersection, location: _pt(0.0002, 0.0000));
-  static final _i3 = CampusNode(id: 'x_3', type: CampusNodeType.intersection, location: _pt(0.0000, 0.0006));
-  static final _i4 = CampusNode(id: 'x_4', type: CampusNodeType.intersection, location: _pt(0.0014, 0.0010));
-  static final _i5 = CampusNode(id: 'x_5', type: CampusNodeType.intersection, location: _pt(0.0018, 0.0004));
-  static final _i6 = CampusNode(id: 'x_6', type: CampusNodeType.intersection, location: _pt(-0.0014, 0.0002));
-
-  static final List<CampusNode> _nodes = [
-    mainGate, gate2East, gate3South, gate4West,
-    csItBuilding, engineeringBuilding, library, adminBuilding,
-    medicalCollege, mosque, studentCenter, cafeteria,
-    _i1, _i2, _i3, _i4, _i5, _i6,
-  ];
-
-  /// A slightly bent line between two points, via one offset midpoint —
-  /// enough to give guidance generation an actual turning point to detect,
-  /// standing in for a real traced sidewalk shape.
-  static List<GeoCoordinate> _bent(GeoCoordinate a, GeoCoordinate b, {double bend = 0.00015}) {
-    final midLat = (a.latitude + b.latitude) / 2 + bend;
-    final midLng = (a.longitude + b.longitude) / 2 - bend;
-    return [a, GeoCoordinate(latitude: midLat, longitude: midLng), b];
+  /// A point [metersNorth]/[metersEast] away from the verified Starbucks
+  /// anchor — see the class doc comment for why this is an estimate, not a
+  /// survey.
+  static GeoCoordinate _relativeTo(
+    GeoCoordinate anchor, {
+    required double metersNorth,
+    required double metersEast,
+  }) {
+    return GeoCoordinate(
+      latitude: anchor.latitude + metersNorth / _metersPerDegreeLat,
+      longitude: anchor.longitude + metersEast / _metersPerDegreeLng,
+    );
   }
 
-  static List<GeoCoordinate> _straight(GeoCoordinate a, GeoCoordinate b) => [a, b];
+  // ---- Destinations ----
+  static final CampusNode starbucks = CampusNode(
+    id: 'starbucks',
+    name: 'Starbucks',
+    type: CampusNodeType.buildingExternal,
+    location: _starbucksLocation,
+  );
 
-  static PathSegment _seg(String id, CampusNode from, CampusNode to, double shade, {bool bent = true}) {
+  static final CampusNode library = CampusNode(
+    id: 'library_qariqir',
+    name: 'Library',
+    type: CampusNodeType.buildingExternal,
+    location: _relativeTo(_starbucksLocation, metersNorth: 15, metersEast: -25),
+  );
+
+  static final CampusNode bldgAGate11 = CampusNode(
+    id: 'bldg_a_gate_11',
+    code: 'A11',
+    name: 'Building A \u2014 Gate 11',
+    type: CampusNodeType.gate,
+    location: _relativeTo(_starbucksLocation, metersNorth: -64, metersEast: 30),
+  );
+
+  static final CampusNode bldgAGate9 = CampusNode(
+    id: 'bldg_a_gate_9',
+    code: 'A9',
+    name: 'Building A \u2014 Gate 9',
+    type: CampusNodeType.gate,
+    location: _relativeTo(
+      _starbucksLocation,
+      metersNorth: -72,
+      metersEast: 174,
+    ),
+  );
+
+  static final CampusNode bldgAGate6 = CampusNode(
+    id: 'bldg_a_gate_6',
+    code: 'A6',
+    name: 'Building A \u2014 Gate 6',
+    type: CampusNodeType.gate,
+    location: _relativeTo(
+      _starbucksLocation,
+      metersNorth: -140,
+      metersEast: 323,
+    ),
+  );
+
+  static final CampusNode bldgGGate9 = CampusNode(
+    id: 'bldg_g_gate_9',
+    code: 'G9',
+    name: 'Building G \u2014 Gate 9',
+    type: CampusNodeType.gate,
+    location: _relativeTo(_starbucksLocation, metersNorth: 72, metersEast: 374),
+  );
+
+  static final CampusNode northGate = CampusNode(
+    id: 'gate_north',
+    name: 'North Entrance', // gate number not legible in the source photo
+    type: CampusNodeType.gate,
+    location: _relativeTo(
+      _starbucksLocation,
+      metersNorth: 174,
+      metersEast: 391,
+    ),
+  );
+
+  static final CampusNode cafeteria = CampusNode(
+    id: 'cafeteria_loco',
+    name: 'Loco Cafe',
+    type: CampusNodeType.buildingExternal,
+    location: _relativeTo(
+      _starbucksLocation,
+      metersNorth: -30,
+      metersEast: 357,
+    ),
+  );
+
+  // ---- One real branch point, where the path splits toward the
+  // Library/Starbucks side vs. continuing on to Building A's gates ----
+  static final CampusNode _junction = CampusNode(
+    id: 'x_junction',
+    type: CampusNodeType.intersection,
+    location: _relativeTo(
+      _starbucksLocation,
+      metersNorth: -42,
+      metersEast: 306,
+    ),
+  );
+
+  static final List<CampusNode> _nodes = [
+    starbucks,
+    library,
+    bldgAGate11,
+    bldgAGate9,
+    bldgAGate6,
+    bldgGGate9,
+    northGate,
+    cafeteria,
+    _junction,
+  ];
+
+  static List<GeoCoordinate> _straight(GeoCoordinate a, GeoCoordinate b) => [
+    a,
+    b,
+  ];
+
+  static PathSegment _seg(
+    String id,
+    CampusNode from,
+    CampusNode to,
+    double shade,
+  ) {
     return PathSegment(
       id: id,
       fromNodeId: from.id,
       toNodeId: to.id,
-      geometry: bent ? _bent(from.location, to.location) : _straight(from.location, to.location),
+      geometry: _straight(from.location, to.location),
       shadeScore: shade,
     );
   }
 
   static final List<PathSegment> _segments = [
-    // Main Gate side (open access road near the gate — low shade)
-    _seg('seg_1', mainGate, _i1, 0.30),
-    _seg('seg_2', _i1, gate3South, 0.30),
-    // Direct bypass from the main-gate area straight toward the CS/Eng
-    // cluster — the "shortest" option: short, but exposed.
-    _seg('seg_3', _i1, _i4, 0.15, bent: false),
-    // The scenic option: tree-lined central spine via the plaza —
-    // longer, but noticeably more shaded overall.
-    _seg('seg_4', _i1, _i2, 0.65),
-    _seg('seg_5', _i2, _i3, 0.75),
-    _seg('seg_6', _i2, _i4, 0.40), // the one exposed plaza crossing on this route
-    // Library / Mosque cluster
-    _seg('seg_7', _i3, library, 0.80),
-    _seg('seg_8', _i3, mosque, 0.70),
-    _seg('seg_9', _i2, studentCenter, 0.50),
-    _seg('seg_10', _i2, cafeteria, 0.45),
-    // CS/IT / Engineering / Gate 2 / Medical cluster
-    _seg('seg_11', _i4, csItBuilding, 0.85),
-    _seg('seg_12', _i4, engineeringBuilding, 0.50),
-    _seg('seg_13', _i4, _i5, 0.30),
-    _seg('seg_14', _i5, gate2East, 0.20),
-    _seg('seg_15', _i5, medicalCollege, 0.35),
-    // West side — Admin / Gate 4
-    _seg('seg_16', _i2, _i6, 0.55),
-    _seg('seg_17', _i6, adminBuilding, 0.60),
-    _seg('seg_18', _i6, gate4West, 0.25),
-    _seg('seg_19', gate3South, _i6, 0.45), // alternate south-west connector
+    // North Entrance down past Building G's gate — open access road.
+    _seg('seg_1', northGate, bldgGGate9, 0.25),
+    // Building G's gate down to the Loco Cafe.
+    _seg('seg_2', bldgGGate9, cafeteria, 0.45),
+    // The branch point, right after the cafe.
+    _seg('seg_3', cafeteria, _junction, 0.40),
+    // West branch: toward the Library/Starbucks cluster.
+    _seg('seg_4', _junction, bldgAGate11, 0.35),
+    _seg('seg_5', bldgAGate11, library, 0.55),
+    _seg('seg_6', library, starbucks, 0.60),
+    // South branch: on to Building A's other two gates.
+    _seg('seg_7', _junction, bldgAGate9, 0.30),
+    _seg('seg_8', bldgAGate9, bldgAGate6, 0.35),
   ];
 
   @override
