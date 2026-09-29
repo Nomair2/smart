@@ -8,10 +8,12 @@ import 'package:MasarKKU/features/weather/data/reposotories/open_meteo_repositor
 import 'package:MasarKKU/features/weather/domain/weather_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'features/admin/presentation/pages/admin_home_placeholder_page.dart';
+import 'features/routing/presentation/pages/campus_debug_map_page.dart';
 import 'features/auth/data/repositories/firebase_auth_repository.dart';
 import 'features/auth/domain/entities/app_user_role.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
@@ -79,6 +81,7 @@ class SmartPathApp extends StatelessWidget {
         '/forgot-password': (_) => const ForgotPasswordPage(),
         '/home': (_) => const MainShellPage(),
         '/admin-home': (_) => const AdminHomePlaceholderPage(),
+        if (kDebugMode) '/debug-campus-map': (_) => const CampusDebugMapPage(),
       },
     );
   }

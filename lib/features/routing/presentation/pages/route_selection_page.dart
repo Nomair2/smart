@@ -1,4 +1,6 @@
+import 'package:MasarKKU/features/routing/presentation/pages/campus_debug_map_page.dart';
 import 'package:MasarKKU/features/weather/domain/weather_repository.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -114,22 +116,32 @@ class _RouteSelectionView extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        const Row(
-                          children: [
-                            Text(
-                              'Select Route',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 26,
-                                fontWeight: FontWeight.w800,
+                        GestureDetector(
+                          // Debug-only shortcut to the campus data check map
+                          // — see CampusDebugMapPage's doc comment.
+                          onTap: kDebugMode
+                              ? () => Navigator.of(
+                                  context,
+                                ).pushNamed('/debug-campus-map')
+                              // ).push(CampusDebugMapPage())
+                              : null,
+                          child: const Row(
+                            children: [
+                              Text(
+                                'Select Route',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w800,
+                                ),
                               ),
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              '\ud83d\udcd8',
-                              style: TextStyle(fontSize: 22),
-                            ),
-                          ],
+                              SizedBox(width: 8),
+                              Text(
+                                '\ud83d\udcd8',
+                                style: TextStyle(fontSize: 22),
+                              ),
+                            ],
+                          ),
                         ),
                         const SizedBox(height: 4),
                         const Text(
