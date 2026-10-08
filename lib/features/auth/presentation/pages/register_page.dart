@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/localization/app_localizations.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../cubit/register_cubit.dart';
 import '../cubit/register_state.dart';
@@ -36,16 +37,6 @@ class _RegisterViewState extends State<_RegisterView> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  // TODO: replace with the real college/major list (or fetch remotely).
-  static const _colleges = [
-    'College of Computer Science',
-    'College of Engineering',
-    'College of Medicine',
-    'College of Business',
-    'College of Science',
-    'College of Education',
-  ];
-
   @override
   void dispose() {
     _studentIdController.dispose();
@@ -55,7 +46,7 @@ class _RegisterViewState extends State<_RegisterView> {
     super.dispose();
   }
 
-  Future<void> _pickCollege(BuildContext context, RegisterCubit cubit) async {
+  Future<void> _pickCollege(BuildContext context, RegisterCubit cubit, List<String> colleges) async {
     final selected = await showModalBottomSheet<String>(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -66,7 +57,7 @@ class _RegisterViewState extends State<_RegisterView> {
           child: ListView(
             shrinkWrap: true,
             padding: const EdgeInsets.symmetric(vertical: 12),
-            children: _colleges
+            children: colleges
                 .map(
                   (college) => ListTile(
                     title: Text(college),
@@ -83,8 +74,8 @@ class _RegisterViewState extends State<_RegisterView> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F8F7),
       resizeToAvoidBottomInset: true,
       body: BlocConsumer<RegisterCubit, RegisterState>(
         listenWhen: (previous, current) => previous.status != current.status,
@@ -108,18 +99,18 @@ class _RegisterViewState extends State<_RegisterView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const AuthGradientHeader(
-                    title: 'Create Account',
-                    subtitle: "Join Masar KKU — it's free",
+                  AuthGradientHeader(
+                    title: l10n.createAccount,
+                    subtitle: l10n.joinMasarFree,
                     emoji: '✨',
                   ),
                   Transform.translate(
                     offset: const Offset(0, -32),
                     child: Container(
                       padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.vertical(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(28),
                         ),
                       ),
@@ -129,8 +120,8 @@ class _RegisterViewState extends State<_RegisterView> {
                           const StepProgressBar(currentStep: 1, totalSteps: 3),
                           const SizedBox(height: 24),
                           AuthTextField(
-                            label: 'Student ID Number',
-                            hint: 'e.g. 441234567',
+                            label: l10n.studentIdNumber,
+                            hint: l10n.studentIdHint,
                             icon: Icons.tag_rounded,
                             controller: _studentIdController,
                             keyboardType: TextInputType.number,
@@ -138,8 +129,8 @@ class _RegisterViewState extends State<_RegisterView> {
                             onChanged: cubit.studentIdChanged,
                           ),
                           AuthTextField(
-                            label: 'Full Name',
-                            hint: 'Your full name',
+                            label: l10n.fullNameLabel,
+                            hint: l10n.fullNameHint,
                             icon: Icons.person_outline_rounded,
                             controller: _fullNameController,
                             keyboardType: TextInputType.name,
@@ -147,8 +138,8 @@ class _RegisterViewState extends State<_RegisterView> {
                             onChanged: cubit.fullNameChanged,
                           ),
                           AuthTextField(
-                            label: 'Email',
-                            hint: 'name@gmail.com',
+                            label: l10n.emailLabel,
+                            hint: l10n.emailHint,
                             icon: Icons.mail_outline_rounded,
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
@@ -157,7 +148,7 @@ class _RegisterViewState extends State<_RegisterView> {
                           ),
                           PasswordField(
                             controller: _passwordController,
-                            hint: 'Create a strong password',
+                            hint: l10n.createStrongPassword,
                             isVisible: state.isPasswordVisible,
                             onVisibilityToggled:
                                 cubit.passwordVisibilityToggled,
@@ -166,7 +157,7 @@ class _RegisterViewState extends State<_RegisterView> {
                             onChanged: cubit.passwordChanged,
                           ),
                           Text(
-                            'COLLEGE / MAJOR',
+                            l10n.collegeMajorLabel,
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
@@ -177,14 +168,14 @@ class _RegisterViewState extends State<_RegisterView> {
                           const SizedBox(height: 8),
                           InkWell(
                             borderRadius: BorderRadius.circular(14),
-                            onTap: () => _pickCollege(context, cubit),
+                            onTap: () => _pickCollege(context, cubit, l10n.colleges),
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 14,
                                 vertical: 14,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF4F6F5),
+                                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                                 borderRadius: BorderRadius.circular(14),
                                 border: state.collegeError != null
                                     ? Border.all(color: const Color(0xFFE0574C))
@@ -199,11 +190,11 @@ class _RegisterViewState extends State<_RegisterView> {
                                   const SizedBox(width: 10),
                                   Expanded(
                                     child: Text(
-                                      state.college ?? 'Select your college',
+                                      state.college ?? l10n.selectYourCollege,
                                       style: TextStyle(
                                         fontSize: 14.5,
                                         color: state.college != null
-                                            ? Colors.black87
+                                            ? null
                                             : Colors.grey[500],
                                       ),
                                     ),
@@ -228,7 +219,7 @@ class _RegisterViewState extends State<_RegisterView> {
                           ],
                           const SizedBox(height: 24),
                           PrimaryAuthButton(
-                            label: 'Create Account',
+                            label: l10n.createAccount,
                             isLoading:
                                 state.status == RegisterStatus.submitting,
                             onPressed: state.isValid ? cubit.submitted : null,
@@ -242,13 +233,11 @@ class _RegisterViewState extends State<_RegisterView> {
                                   color: Colors.grey[600],
                                 ),
                                 children: [
-                                  const TextSpan(
-                                    text: 'Already have an account? ',
-                                  ),
+                                  TextSpan(text: l10n.alreadyHaveAccount),
                                   TextSpan(
-                                    text: 'Login',
-                                    style: const TextStyle(
-                                      color: Color(0xFF1E5B3D),
+                                    text: l10n.login,
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.primary,
                                       fontWeight: FontWeight.w700,
                                     ),
                                     recognizer: TapGestureRecognizer()

@@ -7,27 +7,52 @@ class RouteGuideState extends Equatable {
     this.currentStepIndex = 0,
     this.mode = NavigationModee.preview,
     this.voiceEnabled = true,
+    this.userLatitude,
+    this.userLongitude,
   });
 
-  /// Index into `result.instructions`. Advances only when the user taps a
-  /// step in the upcoming list (manual progress) — there's no GPS-based
-  /// auto-advance yet; that's flagged as future work, not silently assumed.
   final int currentStepIndex;
+
   final NavigationModee mode;
+
   final bool voiceEnabled;
+
+  /// Current GPS latitude of the user.
+  final double? userLatitude;
+
+  /// Current GPS longitude of the user.
+  final double? userLongitude;
 
   RouteGuideState copyWith({
     int? currentStepIndex,
+
     NavigationModee? mode,
+
     bool? voiceEnabled,
+
+    double? userLatitude,
+
+    double? userLongitude,
   }) {
     return RouteGuideState(
       currentStepIndex: currentStepIndex ?? this.currentStepIndex,
+
       mode: mode ?? this.mode,
+
       voiceEnabled: voiceEnabled ?? this.voiceEnabled,
+
+      userLatitude: userLatitude ?? this.userLatitude,
+
+      userLongitude: userLongitude ?? this.userLongitude,
     );
   }
 
   @override
-  List<Object?> get props => [currentStepIndex, mode, voiceEnabled];
+  List<Object?> get props => [
+    currentStepIndex,
+    mode,
+    voiceEnabled,
+    userLatitude,
+    userLongitude,
+  ];
 }

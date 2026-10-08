@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/localization/app_localizations.dart';
 import '../../domain/entities/campus_node.dart';
 
 /// The "Starting Point / Destination" card — the two dropdowns plus the
@@ -27,10 +28,13 @@ class RoutePointSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF6F8F7),
+        // Was hardcoded Color(0xFFF6F8F7), identical to the scaffold —
+        // needs real contrast against the dark card in dark mode.
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
@@ -47,16 +51,16 @@ class RoutePointSelector extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _Field(
-                        label: 'Starting Point',
-                        hint: 'Choose starting point',
+                        label: l10n.startingPoint,
+                        hint: l10n.chooseStartingPoint,
                         value: origin,
                         options: nodes,
                         onChanged: onOriginChanged,
                       ),
                       const SizedBox(height: 18),
                       _Field(
-                        label: 'Destination',
-                        hint: 'Choose destination',
+                        label: l10n.destinationLabel,
+                        hint: l10n.chooseDestination,
                         value: destination,
                         options: nodes,
                         onChanged: onDestinationChanged,
@@ -73,11 +77,11 @@ class RoutePointSelector extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: (origin == null && destination == null) ? null : onSwap,
               icon: const Icon(Icons.swap_vert_rounded, size: 18),
-              label: const Text('Swap Points'),
+              label: Text(l10n.swapPoints),
               style: OutlinedButton.styleFrom(
-                foregroundColor: primaryGreen,
+                foregroundColor: Theme.of(context).colorScheme.primary,
                 side: const BorderSide(color: Color(0xFFDDE5E1)),
-                backgroundColor: Colors.white,
+                backgroundColor: Theme.of(context).cardColor,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
@@ -140,7 +144,7 @@ class _Field extends StatelessWidget {
         const SizedBox(height: 6),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+          decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(12)),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<CampusNode>(
               value: value,

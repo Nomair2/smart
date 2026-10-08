@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/domain/entities/season_mode.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/presentation/widgets/season_mode_picker.dart';
 import '../../../profile/domain/repositories/profile_repository.dart';
 import '../../domain/repositories/home_repository.dart';
@@ -35,10 +36,10 @@ class HomePage extends StatelessWidget {
         context.read<WeatherRepository>(),
       ),
       child: Scaffold(
-        backgroundColor: const Color(0xFFF6F8F7),
         body: SafeArea(
           child: BlocBuilder<HomeCubit, HomeState>(
             builder: (context, state) {
+              final l10n = AppLocalizations.of(context)!;
               final profile = state.profile;
               final weather = state.weather;
 
@@ -47,7 +48,7 @@ class HomePage extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(24),
                     child: Text(
-                      state.errorMessage ?? 'Could not load the home screen.',
+                      state.errorMessage ?? l10n.couldNotLoadHome,
                     ),
                   ),
                 );
@@ -66,16 +67,15 @@ class HomePage extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
                   children: [
                     WeatherCard(
-                      greeting: _greeting(),
+                      greeting: _greeting(l10n),
                       firstName: profile.fullName.split(' ').first,
                       weather: weather,
-                      modeLabel:
-                          '${profile.defaultSeasonMode.label} Mode Active',
+                      modeLabel: l10n.seasonModeActive(profile.defaultSeasonMode.label),
                       onAvatarTap: onOpenProfile,
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      'QUICK ACTIONS',
+                      l10n.quickActions,
                       style: TextStyle(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w700,
@@ -88,14 +88,14 @@ class HomePage extends StatelessWidget {
                       children: [
                         QuickActionCard(
                           icon: Icons.map_rounded,
-                          label: 'Find Route',
+                          label: l10n.findRoute,
                           color: const Color(0xFF1E5B3D),
                           onTap: onOpenRoutes,
                         ),
                         const SizedBox(width: 10),
                         QuickActionCard(
                           icon: Icons.wb_sunny_rounded,
-                          label: 'Season Mode',
+                          label: l10n.seasonModeAction,
                           color: const Color(0xFFE0A83C),
                           onTap: () => showSeasonModePicker(
                             context,
@@ -108,7 +108,7 @@ class HomePage extends StatelessWidget {
                         const SizedBox(width: 10),
                         QuickActionCard(
                           icon: Icons.person_rounded,
-                          label: 'My Profile',
+                          label: l10n.myProfile,
                           color: const Color(0xFF4C6FE0),
                           onTap: onOpenProfile,
                         ),
@@ -128,7 +128,7 @@ class HomePage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'RECENT ROUTES',
+                          l10n.recentRoutes,
                           style: TextStyle(
                             fontSize: 11.5,
                             fontWeight: FontWeight.w700,
@@ -138,12 +138,12 @@ class HomePage extends StatelessWidget {
                         ),
                         InkWell(
                           onTap: onOpenRoutes,
-                          child: const Text(
-                            'See All',
+                          child: Text(
+                            l10n.seeAll,
                             style: TextStyle(
                               fontSize: 12.5,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFF1E5B3D),
+                              color: Theme.of(context).colorScheme.primary,
                             ),
                           ),
                         ),
@@ -152,7 +152,7 @@ class HomePage extends StatelessWidget {
                     const SizedBox(height: 10),
                     if (state.recentRoutes.isEmpty)
                       Text(
-                        'No routes yet — try Find Route above.',
+                        l10n.noRoutesYet,
                         style: TextStyle(fontSize: 13, color: Colors.grey[500]),
                       )
                     else
@@ -169,10 +169,10 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  String _greeting() {
+  String _greeting(AppLocalizations l10n) {
     final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
+    if (hour < 12) return l10n.goodMorning;
+    if (hour < 17) return l10n.goodAfternoon;
+    return l10n.goodEvening;
   }
 }

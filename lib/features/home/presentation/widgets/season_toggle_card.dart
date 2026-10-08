@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/localization/app_localizations.dart';
+
 class SeasonToggleCard extends StatelessWidget {
   const SeasonToggleCard({super.key, required this.value, required this.onChanged});
 
@@ -8,6 +10,7 @@ class SeasonToggleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -24,15 +27,15 @@ class SeasonToggleCard extends StatelessWidget {
             child: const Icon(Icons.wb_sunny_rounded, color: Colors.white, size: 20),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Summer Mode Active',
-                    style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: Color(0xFFB8860B))),
-                SizedBox(height: 2),
-                Text('Routes prefer shaded paths to reduce heat exposure',
-                    style: TextStyle(fontSize: 11.5, color: Color(0xFF8A6D1F))),
+                Text(l10n.summerModeActive,
+                    style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: Color(0xFFB8860B))),
+                const SizedBox(height: 2),
+                Text(l10n.summerModeDesc,
+                    style: const TextStyle(fontSize: 11.5, color: Color(0xFF8A6D1F))),
               ],
             ),
           ),

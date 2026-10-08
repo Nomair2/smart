@@ -1,6 +1,8 @@
+import 'package:MasarKKU/features/notifications/presentation/pages/notifications_page.dart';
 import 'package:MasarKKU/features/routing/presentation/pages/route_selection_page.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/localization/app_localizations.dart';
 import '../../../home/presentation/pages/home_page.dart';
 import '../../../profile/presentation/pages/profile_page.dart';
 import 'alerts_placeholder_page.dart';
@@ -22,6 +24,7 @@ class _MainShellPageState extends State<MainShellPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final pages = [
       HomePage(
         onOpenRoutes: () => _goToTab(1),
@@ -29,7 +32,8 @@ class _MainShellPageState extends State<MainShellPage> {
       ),
       // const RoutesPlaceholderPage(),
       const RouteSelectionPage(),
-      const AlertsPlaceholderPage(),
+      // const AlertsPlaceholderPage(),
+      NotificationsPage(),
       const ProfilePage(),
     ];
 
@@ -38,28 +42,30 @@ class _MainShellPageState extends State<MainShellPage> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: _goToTab,
-        backgroundColor: Colors.white,
-        indicatorColor: const Color(0xFFEAF3EE),
-        destinations: const [
+        // Was hardcoded Colors.white / Color(0xFFEAF3EE) — theme tokens
+        // so the always-visible nav bar actually responds to dark mode.
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        indicatorColor: Theme.of(context).colorScheme.primaryContainer,
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home_rounded),
-            label: 'Home',
+            icon: const Icon(Icons.home_outlined),
+            selectedIcon: const Icon(Icons.home_rounded),
+            label: l10n.navHome,
           ),
           NavigationDestination(
-            icon: Icon(Icons.map_outlined),
-            selectedIcon: Icon(Icons.map_rounded),
-            label: 'Routes',
+            icon: const Icon(Icons.map_outlined),
+            selectedIcon: const Icon(Icons.map_rounded),
+            label: l10n.navRoutes,
           ),
           NavigationDestination(
-            icon: Icon(Icons.notifications_none_rounded),
-            selectedIcon: Icon(Icons.notifications_rounded),
-            label: 'Alerts',
+            icon: const Icon(Icons.notifications_none_rounded),
+            selectedIcon: const Icon(Icons.notifications_rounded),
+            label: l10n.navAlerts,
           ),
           NavigationDestination(
-            icon: Icon(Icons.person_outline_rounded),
-            selectedIcon: Icon(Icons.person_rounded),
-            label: 'Profile',
+            icon: const Icon(Icons.person_outline_rounded),
+            selectedIcon: const Icon(Icons.person_rounded),
+            label: l10n.navProfile,
           ),
         ],
       ),

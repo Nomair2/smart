@@ -29,7 +29,7 @@ class ComfortScoreGauge extends StatelessWidget {
                 child: CircularProgressIndicator(
                   value: (comfortScore / 100).clamp(0, 1),
                   strokeWidth: 7,
-                  backgroundColor: const Color(0xFFEDF0EF),
+                  backgroundColor: Theme.of(context).colorScheme.outlineVariant,
                   valueColor: const AlwaysStoppedAnimation(primaryGreen),
                 ),
               ),

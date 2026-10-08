@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/localization/app_localizations.dart';
 import '../../domain/entities/route_optimization_goal.dart';
 
 class OptimizationGoalPill extends StatelessWidget {
@@ -24,6 +25,7 @@ class OptimizationGoalPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Expanded(
       child: InkWell(
         onTap: onTap,
@@ -31,7 +33,9 @@ class OptimizationGoalPill extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: selected ? primaryGreen : const Color(0xFFF6F8F7),
+            // Unselected was hardcoded Color(0xFFF6F8F7), identical to
+            // the scaffold — needs contrast against the dark card.
+            color: selected ? primaryGreen : Theme.of(context).colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(24),
           ),
           child: Row(
@@ -39,7 +43,7 @@ class OptimizationGoalPill extends StatelessWidget {
             children: [
               Text(_emoji, style: const TextStyle(fontSize: 13)),
               const SizedBox(width: 6),
-              Text(goal.label,
+              Text(goal.label(l10n),
                   style: TextStyle(
                       fontSize: 12.5,
                       fontWeight: FontWeight.w700,

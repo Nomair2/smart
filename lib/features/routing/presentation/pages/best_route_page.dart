@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/domain/entities/season_mode.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../domain/entities/route_result.dart';
 import '../widgets/alternative_route_row.dart';
 import '../widgets/comfort_bar.dart';
@@ -29,23 +30,24 @@ class BestRoutePage extends StatelessWidget {
     }
   }
 
-  String get _seasonWord {
+  String _seasonWord(AppLocalizations l10n) {
     switch (result.seasonMode) {
       case SeasonMode.summer:
-        return 'summer';
+        return l10n.seasonWordSummer;
       case SeasonMode.winter:
-        return 'winter';
+        return l10n.seasonWordWinter;
       case SeasonMode.auto:
-        return 'today\'s';
+        return l10n.seasonWordToday;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
     final minutes = (result.estimatedTime.inSeconds / 60).round();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F8F7),
       body: SafeArea(
         bottom: false,
         child: SingleChildScrollView(
@@ -88,10 +90,10 @@ class BestRoutePage extends StatelessWidget {
                       child: const Icon(Icons.check_circle_rounded, color: primaryGreen, size: 40),
                     ),
                     const SizedBox(height: 14),
-                    const Text('Best Route Found!',
-                        style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
+                    Text(l10n.bestRouteFound,
+                        style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
                     const SizedBox(height: 4),
-                    Text('Optimized for $_seasonWord comfort',
+                    Text(l10n.optimizedForComfort(_seasonWord(l10n)),
                         style: const TextStyle(color: Colors.white70, fontSize: 13.5)),
                   ],
                 ),
@@ -100,16 +102,17 @@ class BestRoutePage extends StatelessWidget {
                 offset: const Offset(0, -26),
                 child: Container(
                   padding: const EdgeInsets.fromLTRB(20, 22, 20, 24),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor,
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Container(
                         padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(color: const Color(0xFFF6F8F7), borderRadius: BorderRadius.circular(18)),
+                        decoration: BoxDecoration(
+                            color: colorScheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(18)),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
@@ -117,13 +120,13 @@ class BestRoutePage extends StatelessWidget {
                               children: [
                                 const Icon(Icons.star_rounded, size: 15, color: Color(0xFFE0A83C)),
                                 const SizedBox(width: 6),
-                                Text('RECOMMENDED ROUTE',
+                                Text(l10n.recommendedRoute,
                                     style: TextStyle(
                                         fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 0.6, color: Colors.grey[500])),
                               ],
                             ),
                             const SizedBox(height: 14),
-                            _EndpointRow(icon: Icons.door_front_door_rounded, label: 'From', name: result.origin.name ?? '—'),
+                            _EndpointRow(icon: Icons.door_front_door_rounded, label: l10n.fromLabel, name: result.origin.name ?? '—'),
                             const Padding(
                               padding: EdgeInsets.only(left: 15),
                               child: SizedBox(
@@ -131,14 +134,14 @@ class BestRoutePage extends StatelessWidget {
                                 child: VerticalDivider(width: 2, thickness: 1.5, color: Color(0xFFDDE5E1)),
                               ),
                             ),
-                            _EndpointRow(icon: Icons.location_city_rounded, label: 'To', name: result.destination.name ?? '—'),
+                            _EndpointRow(icon: Icons.location_city_rounded, label: l10n.toLabel, name: result.destination.name ?? '—'),
                             const SizedBox(height: 14),
                             Row(
                               children: [
                                 RouteStatChip(
                                   icon: Icons.straighten_rounded,
                                   value: '${result.distanceMeters.round()} m',
-                                  label: 'Distance',
+                                  label: l10n.distanceLabel,
                                   color: const Color(0xFF4C6FE0),
                                   backgroundColor: const Color(0xFFEAEEFD),
                                 ),
@@ -146,7 +149,7 @@ class BestRoutePage extends StatelessWidget {
                                 RouteStatChip(
                                   icon: Icons.schedule_rounded,
                                   value: '$minutes min',
-                                  label: 'Est. Time',
+                                  label: l10n.estTimeLabel,
                                   color: const Color(0xFFB8860B),
                                   backgroundColor: const Color(0xFFFDF6E3),
                                 ),
@@ -154,7 +157,7 @@ class BestRoutePage extends StatelessWidget {
                                 RouteStatChip(
                                   icon: Icons.eco_rounded,
                                   value: '${result.comfortScore.round()}%',
-                                  label: 'Comfort',
+                                  label: l10n.comfortLabel,
                                   color: primaryGreen,
                                   backgroundColor: const Color(0xFFEAF3EE),
                                 ),
@@ -164,34 +167,39 @@ class BestRoutePage extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      Text('COMFORT ANALYSIS',
+                      Text(l10n.comfortAnalysis,
                           style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 0.6, color: Colors.grey[500])),
                       const SizedBox(height: 8),
                       ComfortBar(
                         emoji: '\ud83c\udf3f',
-                        label: 'Shade',
+                        label: l10n.shadeLabel,
                         value: result.shadePercent / 100,
                         trailing: '${result.shadePercent.round()}%',
                         color: primaryGreen,
                       ),
                       ComfortBar(
                         emoji: '\u2600\ufe0f',
-                        label: 'Sun',
+                        label: l10n.sunLabel,
                         value: result.sunPercent / 100,
                         trailing: '${result.sunPercent.round()}%',
                         color: const Color(0xFFE0A83C),
                       ),
                       ComfortBar(
                         emoji: '\ud83d\udca8',
-                        label: 'Wind',
+                        label: l10n.windLabel,
                         value: _windFill,
+                        // result.windLabel is engine-computed domain data
+                        // (Calm/Fair/Breezy/Strong), not UI copy — left
+                        // untranslated, same as result.tip below and
+                        // weather.condition elsewhere.
                         trailing: result.windLabel,
                         color: const Color(0xFF4C6FE0),
                       ),
                       const SizedBox(height: 16),
                       Container(
                         padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(color: const Color(0xFFEAF3EE), borderRadius: BorderRadius.circular(14)),
+                        decoration: BoxDecoration(
+                            color: colorScheme.primaryContainer, borderRadius: BorderRadius.circular(14)),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -199,14 +207,14 @@ class BestRoutePage extends StatelessWidget {
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(result.tip,
-                                  style: const TextStyle(fontSize: 12.5, color: primaryGreen, height: 1.4)),
+                                  style: TextStyle(fontSize: 12.5, color: colorScheme.onPrimaryContainer, height: 1.4)),
                             ),
                           ],
                         ),
                       ),
                       if (result.alternatives.isNotEmpty) ...[
                         const SizedBox(height: 22),
-                        Text('ALTERNATIVE ROUTES',
+                        Text(l10n.alternativeRoutes,
                             style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 0.6, color: Colors.grey[500])),
                         const SizedBox(height: 10),
                         ...result.alternatives.map((alt) => AlternativeRouteRow(alternative: alt)),
@@ -223,7 +231,7 @@ class BestRoutePage extends StatelessWidget {
                                 );
                               },
                               icon: const Icon(Icons.menu_book_rounded, size: 17),
-                              label: const Text('View Route'),
+                              label: Text(l10n.viewRoute),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: primaryGreen,
                                 foregroundColor: Colors.white,
@@ -243,12 +251,12 @@ class BestRoutePage extends StatelessWidget {
                                 );
                               },
                               style: OutlinedButton.styleFrom(
-                                foregroundColor: primaryGreen,
+                                foregroundColor: colorScheme.primary,
                                 side: const BorderSide(color: Color(0xFFDDE5E1)),
                                 padding: const EdgeInsets.symmetric(vertical: 14),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                               ),
-                              child: const Text('Details'),
+                              child: Text(l10n.detailsLabel),
                             ),
                           ),
                         ],

@@ -1,4 +1,6 @@
-import 'package:MasarKKU/features/routing/data/noop_voice_guide_service.dart';
+import 'package:MasarKKU/features/notifications/data/repositories/fake_notification_repository.dart';
+import 'package:MasarKKU/features/notifications/domain/repositories/notification_repository.dart';
+import 'package:MasarKKU/features/routing/data/flutter_tts_voice_guide_service.dart';
 import 'package:MasarKKU/features/routing/data/repositories/fake_campus_repository.dart';
 import 'package:MasarKKU/features/routing/domain/repositories/campus_repository.dart';
 import 'package:MasarKKU/features/routing/domain/voice_guide_service.dart';
@@ -11,7 +13,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:http/http.dart' as http;
+import 'core/localization/app_localizations.dart';
+import 'core/location/location_service.dart';
+import 'core/presentation/cubit/app_settings_cubit.dart';
+import 'core/presentation/cubit/app_settings_state.dart';
+import 'core/theme/app_theme.dart';
 import 'features/admin/presentation/pages/admin_home_placeholder_page.dart';
 import 'features/routing/presentation/pages/campus_debug_map_page.dart';
 import 'features/auth/data/repositories/firebase_auth_repository.dart';
@@ -25,6 +33,8 @@ import 'features/home/data/repositories/fake_home_repository.dart';
 import 'features/home/domain/repositories/home_repository.dart';
 import 'features/profile/data/repositories/firestore_profile_repository.dart';
 import 'features/profile/domain/repositories/profile_repository.dart';
+import 'features/profile/presentation/cubit/profile_cubit.dart';
+import 'features/profile/presentation/cubit/profile_state.dart';
 import 'features/shell/presentation/pages/main_shell_page.dart';
 import 'firebase_options.dart';
 
@@ -52,15 +62,33 @@ Future<void> main() async {
             locationLabel: WeatherLocation.label,
           ),
         ),
+        RepositoryProvider<NotificationRepository>(
+          create: (_) => FakeNotificationRepository(),
+        ),
         RepositoryProvider<HomeRepository>(create: (_) => FakeHomeRepository()),
         RepositoryProvider<CampusRepository>(
           create: (_) => FakeCampusRepository(),
         ),
         RepositoryProvider<VoiceGuideService>(
-          create: (_) => NoopVoiceGuideService(),
+          create: (_) => FlutterTtsVoiceGuideService(),
         ),
+        RepositoryProvider<LocationService>(create: (_) => LocationService()),
       ],
-      child: const SmartPathApp(),
+      child: MultiBlocProvider(
+        providers: [
+          // App-wide and safe to create before login (see ProfileCubit's
+          // doc comment) — this is what lets MaterialApp read locale/
+          // themeMode, and what lets every pushed route (not just the
+          // Profile tab's own subtree) reach ProfileCubit without the
+          // BlocProvider.value carry-over this app used to need.
+          BlocProvider<AppSettingsCubit>(create: (_) => AppSettingsCubit()),
+          BlocProvider<ProfileCubit>(
+            create: (context) =>
+                ProfileCubit(context.read<ProfileRepository>()),
+          ),
+        ],
+        child: const SmartPathApp(),
+      ),
     ),
   );
 }
@@ -70,18 +98,44 @@ class SmartPathApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Masar KKU',
-      debugShowCheckedModeBanner: false,
-      home: const AuthGate(),
-      routes: {
-        '/welcome': (_) => const WelcomeScreen(),
-        '/login': (_) => const LoginPage(),
-        '/register': (_) => const RegisterPage(),
-        '/forgot-password': (_) => const ForgotPasswordPage(),
-        '/home': (_) => const MainShellPage(),
-        '/admin-home': (_) => const AdminHomePlaceholderPage(),
-        if (kDebugMode) '/debug-campus-map': (_) => const CampusDebugMapPage(),
+    return BlocBuilder<AppSettingsCubit, AppSettingsState>(
+      builder: (context, settings) {
+        return MaterialApp(
+          title: 'Masar KKU',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
+          themeMode: settings.themeMode,
+          locale: settings.locale,
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          home: BlocListener<ProfileCubit, ProfileState>(
+            listener: (context, state) {
+              final profile = state.profile;
+              if (profile != null) {
+                context.read<AppSettingsCubit>().syncLocaleFromProfile(
+                  profile.preferredLanguage,
+                );
+              }
+            },
+            child: const AuthGate(),
+          ),
+          routes: {
+            '/welcome': (_) => const WelcomeScreen(),
+            '/login': (_) => const LoginPage(),
+            '/register': (_) => const RegisterPage(),
+            '/forgot-password': (_) => const ForgotPasswordPage(),
+            '/home': (_) => const MainShellPage(),
+            '/admin-home': (_) => const AdminHomePlaceholderPage(),
+            if (kDebugMode)
+              '/debug-campus-map': (_) => const CampusDebugMapPage(),
+          },
+        );
       },
     );
   }

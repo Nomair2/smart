@@ -26,12 +26,26 @@ class ComfortBar extends StatelessWidget {
       child: Row(
         children: [
           SizedBox(
-            width: 70,
+            // Wide enough for the longest label this card actually uses
+            // ("Shaded Coverage"); the Expanded + ellipsis below is a
+            // safety net, not the primary fix, in case a longer label
+            // shows up later.
+            width: 112,
             child: Row(
               children: [
                 Text(emoji, style: const TextStyle(fontSize: 13)),
                 const SizedBox(width: 6),
-                Text(label, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600)),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
               ],
             ),
           ),
@@ -49,9 +63,15 @@ class ComfortBar extends StatelessWidget {
           const SizedBox(width: 10),
           SizedBox(
             width: 40,
-            child: Text(trailing,
-                textAlign: TextAlign.right,
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: color)),
+            child: Text(
+              trailing,
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: color,
+              ),
+            ),
           ),
         ],
       ),

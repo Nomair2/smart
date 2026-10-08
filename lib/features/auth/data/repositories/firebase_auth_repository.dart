@@ -7,12 +7,12 @@ import '../../domain/entities/app_user_role.dart';
 
 /// Firebase-backed implementation of [AuthRepository].
 ///
-/// Firebase Auth signs in with an email/password pair, but the UI only
-/// collects a Student ID. To bridge that, every registered user's
-/// studentId -> email mapping lives in the `users` Firestore collection
-/// (document id = Firebase Auth uid, `studentId` kept as a queryable
-/// field), and [login] / [resetPassword] resolve the email from that
-/// collection before calling FirebaseAuth.
+/// Firebase Auth signs in with an email/password pair, but [login]'s single
+/// `identifier` field accepts either a Student ID or the university email
+/// directly — an email is used as-is, a Student ID is resolved to one via
+/// the `users` Firestore collection first (document id = Firebase Auth uid,
+/// `studentId` kept as a queryable field). [resetPassword] still only takes
+/// a Student ID and resolves it the same way.
 ///
 /// Firestore document shape (collection `users`), mirroring the "Table
 /// users" design in the project report minus `password_hash` — Firebase
@@ -34,14 +34,15 @@ class FirebaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> login({
-    required String studentId,
+    required String identifier,
     required String password,
   }) async {
-    print("1");
-    final email = await _resolveEmail(studentId);
-    print(email);
-    print("2");
-    print(email);
+    final trimmed = identifier.trim();
+    // An email always has '@'; a student ID never does — that's enough to
+    // tell the two apart without asking the user to pick a mode.
+    final email = trimmed.contains('@')
+        ? trimmed
+        : await _resolveEmail(trimmed);
     if (email == null) {
       throw const AuthFailure('No account found for that student ID.');
     }
@@ -194,7 +195,9 @@ class FirebaseAuthRepository implements AuthRepository {
       case 'user-not-found':
       case 'wrong-password':
       case 'invalid-credential':
-        return 'Invalid student ID or password. Please try again.';
+        return 'Invalid student ID/email or password. Please try again.';
+      case 'invalid-email':
+        return "That doesn't look like a valid student ID or email.";
       case 'user-disabled':
         return 'This account has been disabled. Contact your administrator.';
       case 'too-many-requests':

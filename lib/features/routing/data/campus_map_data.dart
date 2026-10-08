@@ -253,13 +253,12 @@ class CampusMapData {
     _seg('seg_1', xGGateN, xGGate9, 0.25),
 
     _seg('seg_12', xintersection2, xCafe, 0.40),
-    _seg('seg_2', xGGate9, xintersection2, 0.40),
+    _seg('seg_2b', xGGate9, xintersection2, 0.40),
     _seg('seg_13', bldgGGate9, xGGate9, 0.40),
     _seg('seg_3', xCafe, cafeteria, 0.45), // short spur to the cafe
     // Main walkway heading west; each fork has a short tooth to a gate.
     _seg('seg_14', xintersection2, xintersection3, 0.30),
     _seg('seg_15', xintersection3, xintersection4, 0.30),
-    _seg('seg_16', xintersection3, xintersection4, 0.30),
     _seg('seg_17', xintersection4, xintersection5, 0.30),
 
     _seg('seg_4', xintersection5, xGate6, 0.30),
@@ -273,7 +272,7 @@ class CampusMapData {
     _seg('seg_10', xintersection7, starbucks, 0.40),
 
     _seg('seg_9', xGate11, bldgAGate11, 0.35),
-    _seg('seg_14', xGate11, xintersection1, 0.35),
+    _seg('seg_14b', xGate11, xintersection1, 0.35),
     // West end: Starbucks and the Library.
     // _seg('seg_10', xGate11, starbucks, 0.55),
     // _seg('seg_11', starbucks, library, 0.60),

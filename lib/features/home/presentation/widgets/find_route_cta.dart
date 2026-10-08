@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/localization/app_localizations.dart';
+
 class FindRouteCta extends StatelessWidget {
   const FindRouteCta({super.key, required this.onTap});
 
@@ -10,6 +12,7 @@ class FindRouteCta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(18),
@@ -28,15 +31,15 @@ class FindRouteCta extends StatelessWidget {
               child: const Icon(Icons.navigation_rounded, color: Colors.white, size: 20),
             ),
             const SizedBox(width: 14),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Find Best Route',
-                      style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700)),
-                  SizedBox(height: 2),
-                  Text('Comfort-optimized · Weather-aware',
-                      style: TextStyle(color: Colors.white70, fontSize: 12)),
+                  Text(l10n.findBestRoute,
+                      style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 2),
+                  Text(l10n.comfortWeatherAware,
+                      style: const TextStyle(color: Colors.white70, fontSize: 12)),
                 ],
               ),
             ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/localization/app_localizations.dart';
 import '../../domain/entities/route_optimization_goal.dart';
 import '../../domain/entities/route_result.dart';
 
@@ -10,15 +11,17 @@ class AlternativeRouteRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isShortest = alternative.goal == RouteOptimizationGoal.shortest;
     final minutes = (alternative.estimatedTime.inSeconds / 60).round();
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        // Was hardcoded Colors.white / Color(0xFFEDF0EF) border.
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFEDF0EF)),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Row(
         children: [
@@ -33,11 +36,11 @@ class AlternativeRouteRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(isShortest ? 'Shortest Path' : 'Balanced Route',
+                Text(isShortest ? l10n.shortestPathLabel : l10n.balancedRouteLabel,
                     style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
                 const SizedBox(height: 2),
                 Text(
-                  '${alternative.distanceMeters.round()} m · $minutes min · ${alternative.shadePercent.round()}% shade',
+                  l10n.altRouteSummary(alternative.distanceMeters.round(), minutes, alternative.shadePercent.round()),
                   style: TextStyle(fontSize: 11, color: Colors.grey[500]),
                 ),
               ],
@@ -50,7 +53,7 @@ class AlternativeRouteRow extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              isShortest ? '\u26a1 Fast' : '\u2696\ufe0f Balanced',
+              isShortest ? l10n.fastBadge : l10n.balancedBadge,
               style: TextStyle(
                 fontSize: 10.5,
                 fontWeight: FontWeight.w700,

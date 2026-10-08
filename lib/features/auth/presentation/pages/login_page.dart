@@ -32,12 +32,12 @@ class _LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<_LoginView> {
-  final _studentIdController = TextEditingController();
+  final _identifierController = TextEditingController();
   final _passwordController = TextEditingController();
 
   @override
   void dispose() {
-    _studentIdController.dispose();
+    _identifierController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -88,13 +88,13 @@ class _LoginViewState extends State<_LoginView> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           AuthTextField(
-                            label: 'Student ID Number',
-                            hint: 'e.g. 441234567',
-                            icon: Icons.tag_rounded,
-                            controller: _studentIdController,
-                            keyboardType: TextInputType.number,
-                            errorText: state.studentIdError,
-                            onChanged: cubit.studentIdChanged,
+                            label: 'Student ID or Email',
+                            hint: 'e.g. 441234567 or you@kku.edu.sa',
+                            icon: Icons.person_outline_rounded,
+                            controller: _identifierController,
+                            keyboardType: TextInputType.emailAddress,
+                            errorText: state.identifierError,
+                            onChanged: cubit.identifierChanged,
                           ),
                           PasswordField(
                             controller: _passwordController,

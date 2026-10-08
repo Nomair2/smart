@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/domain/entities/season_mode.dart';
+import '../../../../core/localization/app_localizations.dart';
 
 class SeasonModeCard extends StatelessWidget {
   const SeasonModeCard({super.key, required this.mode, required this.selected, required this.onTap});
@@ -8,8 +9,6 @@ class SeasonModeCard extends StatelessWidget {
   final SeasonMode mode;
   final bool selected;
   final VoidCallback onTap;
-
-  static const Color primaryGreen = Color(0xFF1E5B3D);
 
   String get _emoji {
     switch (mode) {
@@ -22,19 +21,21 @@ class SeasonModeCard extends StatelessWidget {
     }
   }
 
-  String get _subtitle {
+  String _subtitle(AppLocalizations l10n) {
     switch (mode) {
       case SeasonMode.summer:
-        return 'Shaded paths';
+        return l10n.shadedPaths;
       case SeasonMode.winter:
-        return 'Sun-exposed paths';
+        return l10n.sunExposedPaths;
       case SeasonMode.auto:
-        return 'Weather-adaptive';
+        return l10n.weatherAdaptive;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
     return Expanded(
       child: InkWell(
         onTap: onTap,
@@ -42,9 +43,12 @@ class SeasonModeCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 6),
           decoration: BoxDecoration(
-            color: selected ? const Color(0xFFEAF3EE) : const Color(0xFFF6F8F7),
+            // Was hardcoded Color(0xFFEAF3EE)/Color(0xFFF6F8F7) — theme
+            // tokens so the unselected card doesn't match the scaffold
+            // in dark mode, and selected keeps a visible accent either way.
+            color: selected ? colorScheme.primaryContainer : colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: selected ? primaryGreen : Colors.transparent, width: 1.5),
+            border: Border.all(color: selected ? colorScheme.primary : Colors.transparent, width: 1.5),
           ),
           child: Column(
             children: [
@@ -54,9 +58,9 @@ class SeasonModeCard extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
-                      color: selected ? primaryGreen : Colors.black87)),
+                      color: selected ? colorScheme.primary : null)),
               const SizedBox(height: 2),
-              Text(_subtitle,
+              Text(_subtitle(l10n),
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 10.5, color: Colors.grey[500])),
             ],

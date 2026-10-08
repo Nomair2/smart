@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 
+import '../../../../core/localization/app_localizations.dart';
 import 'login_page.dart';
 import 'register_page.dart';
 
@@ -15,12 +16,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   // Design palette pulled from the mock
   static const Color primaryGreen = Color(0xFF1E5B3D);
   static const Color primaryGreenLight = Color(0xFF2F7A55);
-  static const Color backgroundLight = Color(0xFFF6F8F7);
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    // Scaffold background now comes from AppTheme (was a hardcoded
+    // Color(0xFFF6F8F7) local constant).
     return Scaffold(
-      backgroundColor: backgroundLight,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -71,9 +73,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       color: Colors.white.withOpacity(0.18),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Text(
-                      'KING KHALID UNIVERSITY',
-                      style: TextStyle(
+                    child: Text(
+                      l10n.kkuBadge,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
@@ -96,7 +98,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
                   // Subtitle
                   Text(
-                    'Campus Navigation System',
+                    l10n.campusNavigationSystem,
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.85),
                       fontSize: 15,
@@ -124,24 +126,24 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               padding: const EdgeInsets.symmetric(vertical: 28),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: const [
+                children: [
                   _FeatureIcon(
                     icon: Icons.thermostat_rounded,
-                    iconColor: Color(0xFFE0574C),
-                    bgColor: Color(0xFFFDEBEA),
-                    label: 'Weather\nRouting',
+                    iconColor: const Color(0xFFE0574C),
+                    bgColor: const Color(0xFFFDEBEA),
+                    label: l10n.featureWeatherRouting,
                   ),
                   _FeatureIcon(
                     icon: Icons.map_rounded,
-                    iconColor: Color(0xFF4C6FE0),
-                    bgColor: Color(0xFFEAEEFD),
-                    label: 'Smart\nNavigation',
+                    iconColor: const Color(0xFF4C6FE0),
+                    bgColor: const Color(0xFFEAEEFD),
+                    label: l10n.featureSmartNavigation,
                   ),
                   _FeatureIcon(
                     icon: Icons.wb_sunny_rounded,
-                    iconColor: Color(0xFFE0A83C),
-                    bgColor: Color(0xFFFDF6E3),
-                    label: 'Comfort\nPaths',
+                    iconColor: const Color(0xFFE0A83C),
+                    bgColor: const Color(0xFFFDF6E3),
+                    label: l10n.featureComfortPaths,
                   ),
                 ],
               ),
@@ -169,18 +171,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Login to Your Account',
-                        style: TextStyle(
+                        l10n.loginToYourAccount,
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      SizedBox(width: 8),
-                      Icon(Icons.arrow_forward_rounded, size: 20),
+                      const SizedBox(width: 8),
+                      const Icon(Icons.arrow_forward_rounded, size: 20),
                     ],
                   ),
                 ),
@@ -206,9 +208,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child: const Text(
-                    'Create New Account',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  child: Text(
+                    l10n.createNewAccount,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -221,9 +223,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 text: TextSpan(
                   style: TextStyle(fontSize: 12.5, color: Colors.grey[600]),
                   children: [
-                    const TextSpan(text: 'By continuing, you agree to our '),
+                    TextSpan(text: l10n.byContinuingYouAgree),
                     TextSpan(
-                      text: 'Terms of Service',
+                      text: l10n.termsOfService,
                       style: const TextStyle(
                         color: primaryGreen,
                         fontWeight: FontWeight.w600,

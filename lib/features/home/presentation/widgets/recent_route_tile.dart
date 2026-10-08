@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/domain/entities/season_mode.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../domain/entities/recent_route_summary.dart';
 
 class RecentRouteTile extends StatelessWidget {
@@ -11,6 +12,7 @@ class RecentRouteTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isSummer = route.seasonMode == SeasonMode.summer;
     return InkWell(
       onTap: onTap,
@@ -19,9 +21,10 @@ class RecentRouteTile extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          // Was hardcoded Colors.white / Color(0xFFEDF0EF) border.
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFFEDF0EF)),
+          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         ),
         child: Row(
           children: [
@@ -39,7 +42,7 @@ class RecentRouteTile extends StatelessWidget {
                   Text('${route.originName} \u2192 ${route.destinationName}',
                       style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 2),
-                  Text('${route.walkMinutes} min walk · ${_relativeTime(route.requestedAt)}',
+                  Text('${l10n.minWalkLabel(route.walkMinutes)} · ${_relativeTime(route.requestedAt, l10n)}',
                       style: TextStyle(fontSize: 11.5, color: Colors.grey[500])),
                 ],
               ),
@@ -51,7 +54,7 @@ class RecentRouteTile extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                isSummer ? '\u2600\ufe0f Summer' : '\u2744\ufe0f Winter',
+                isSummer ? l10n.summerBadge : l10n.winterBadge,
                 style: TextStyle(
                   fontSize: 10.5,
                   fontWeight: FontWeight.w600,
@@ -65,11 +68,11 @@ class RecentRouteTile extends StatelessWidget {
     );
   }
 
-  String _relativeTime(DateTime time) {
+  String _relativeTime(DateTime time, AppLocalizations l10n) {
     final diff = DateTime.now().difference(time);
-    if (diff.inHours < 1) return '${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return '${diff.inHours}h ago';
-    if (diff.inDays == 1) return 'Yesterday';
-    return '${diff.inDays}d ago';
+    if (diff.inHours < 1) return l10n.timeAgoMinutes(diff.inMinutes);
+    if (diff.inHours < 24) return l10n.timeAgoHours(diff.inHours);
+    if (diff.inDays == 1) return l10n.yesterday;
+    return l10n.timeAgoDays(diff.inDays);
   }
 }

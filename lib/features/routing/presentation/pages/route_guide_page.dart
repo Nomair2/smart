@@ -1,6 +1,8 @@
+import 'package:MasarKKU/core/location/location_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/localization/app_localizations.dart';
 import '../../../profile/domain/repositories/profile_repository.dart';
 import '../../domain/entities/route_result.dart';
 import '../../domain/voice_guide_service.dart';
@@ -19,11 +21,20 @@ class RouteGuidePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => RouteGuideCubit(
-        result: result,
-        profileRepository: context.read<ProfileRepository>(),
-        voiceGuideService: context.read<VoiceGuideService>(),
-      ),
+      create: (context) {
+        final cubit = RouteGuideCubit(
+          result: result,
+          locationService: context.read<LocationService>(),
+          profileRepository: context.read<ProfileRepository>(),
+          voiceGuideService: context.read<VoiceGuideService>(),
+        );
+
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          cubit.startNavigation();
+        });
+
+        return cubit;
+      },
       child: const _RouteGuideView(),
     );
   }
@@ -37,9 +48,9 @@ class _RouteGuideView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F8F7),
       body: BlocBuilder<RouteGuideCubit, RouteGuideState>(
         builder: (context, state) {
+          final l10n = AppLocalizations.of(context)!;
           final cubit = context.read<RouteGuideCubit>();
           final result = cubit.result;
           final total = result.instructions.length;
@@ -55,7 +66,14 @@ class _RouteGuideView extends StatelessWidget {
                   children: [
                     RouteSchematicMap(
                       geometry: result.geometry,
+
+                      userLatitude: state.userLatitude,
+
                       progress: progress,
+
+                      userLongitude: state.userLongitude,
+
+                      followUser: state.mode == NavigationModee.navigating,
                     ),
                     Positioned(
                       top: 10,
@@ -96,20 +114,21 @@ class _RouteGuideView extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            child: const Row(
+                            child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.fiber_manual_record,
                                   size: 9,
                                   color: primaryGreen,
                                 ),
-                                SizedBox(width: 6),
+                                const SizedBox(width: 6),
                                 Text(
-                                  'Navigating...',
-                                  style: TextStyle(
+                                  l10n.navigatingEllipsis,
+                                  style: const TextStyle(
                                     fontSize: 12.5,
                                     fontWeight: FontWeight.w600,
+                                    color: Colors.black87,
                                   ),
                                 ),
                               ],
@@ -128,7 +147,7 @@ class _RouteGuideView extends StatelessWidget {
                   child: cubit.hasArrived
                       ? _ArrivedContent(
                           destinationName:
-                              result.destination.name ?? 'your destination',
+                              result.destination.name ?? l10n.yourDestinationFallback,
                         )
                       : ListView(
                           padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
@@ -156,8 +175,8 @@ class _RouteGuideView extends StatelessWidget {
                           icon: const Icon(Icons.navigation_rounded, size: 17),
                           label: Text(
                             state.mode == NavigationModee.navigating
-                                ? 'Navigating'
-                                : 'Start Navigation',
+                                ? l10n.navigatingLabel
+                                : l10n.startNavigation,
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: primaryGreen,
@@ -194,7 +213,7 @@ class _RouteGuideView extends StatelessWidget {
                               borderRadius: BorderRadius.circular(16),
                             ),
                           ),
-                          child: const Text('Details'),
+                          child: Text(l10n.detailsLabel),
                         ),
                       ),
                     ],
@@ -243,6 +262,7 @@ class _ArrivedContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -256,7 +276,7 @@ class _ArrivedContent extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              "You've arrived at $destinationName!",
+              l10n.arrivedAt(destinationName),
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 14.5,

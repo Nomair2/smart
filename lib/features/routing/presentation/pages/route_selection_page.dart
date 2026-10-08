@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/domain/entities/season_mode.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../home/domain/repositories/home_repository.dart';
 import '../../../profile/domain/repositories/profile_repository.dart';
 import '../../domain/entities/route_optimization_goal.dart';
@@ -50,9 +51,9 @@ class _RouteSelectionView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F8F7),
       body: BlocBuilder<RouteSelectionCubit, RouteSelectionState>(
         builder: (context, state) {
+          final l10n = AppLocalizations.of(context)!;
           final cubit = context.read<RouteSelectionCubit>();
 
           if (state.status == RouteSelectionStatus.loadingGraph) {
@@ -66,7 +67,7 @@ class _RouteSelectionView extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(24),
                   child: Text(
-                    state.errorMessage ?? 'Could not load the campus map.',
+                    state.errorMessage ?? l10n.couldNotLoadCampusMap,
                   ),
                 ),
               ),
@@ -119,24 +120,24 @@ class _RouteSelectionView extends StatelessWidget {
                         GestureDetector(
                           // Debug-only shortcut to the campus data check map
                           // — see CampusDebugMapPage's doc comment.
-                          onTap: kDebugMode
-                              ? () => Navigator.of(
-                                  context,
-                                ).pushNamed('/debug-campus-map')
-                              // ).push(CampusDebugMapPage())
-                              : null,
-                          child: const Row(
+                          // onTap: kDebugMode
+                          //     ? () => Navigator.of(
+                          //         context,
+                          //       ).pushNamed('/debug-campus-map')
+                          //     // ).push(CampusDebugMapPage())
+                          //     : null,
+                          child: Row(
                             children: [
                               Text(
-                                'Select Route',
-                                style: TextStyle(
+                                l10n.selectRoute,
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 26,
                                   fontWeight: FontWeight.w800,
                                 ),
                               ),
-                              SizedBox(width: 8),
-                              Text(
+                              const SizedBox(width: 8),
+                              const Text(
                                 '\ud83d\udcd8',
                                 style: TextStyle(fontSize: 22),
                               ),
@@ -144,9 +145,9 @@ class _RouteSelectionView extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
-                          'Choose your start & destination',
-                          style: TextStyle(
+                        Text(
+                          l10n.chooseStartDestination,
+                          style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 13.5,
                           ),
@@ -158,9 +159,9 @@ class _RouteSelectionView extends StatelessWidget {
                     offset: const Offset(0, -26),
                     child: Container(
                       padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.vertical(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(28),
                         ),
                       ),
@@ -177,9 +178,9 @@ class _RouteSelectionView extends StatelessWidget {
                           ),
                           if (sameNode) ...[
                             const SizedBox(height: 8),
-                            const Text(
-                              'Starting point and destination can\'t be the same.',
-                              style: TextStyle(
+                            Text(
+                              l10n.sameStartDestError,
+                              style: const TextStyle(
                                 fontSize: 12,
                                 color: Color(0xFFE0574C),
                               ),
@@ -197,7 +198,7 @@ class _RouteSelectionView extends StatelessWidget {
                           ],
                           const SizedBox(height: 22),
                           Text(
-                            'NAVIGATION MODE',
+                            l10n.navigationModeLabel,
                             style: TextStyle(
                               fontSize: 11.5,
                               fontWeight: FontWeight.w700,
@@ -227,7 +228,7 @@ class _RouteSelectionView extends StatelessWidget {
                           ),
                           const SizedBox(height: 22),
                           Text(
-                            'OPTIMIZE FOR',
+                            l10n.optimizeForLabel,
                             style: TextStyle(
                               fontSize: 11.5,
                               fontWeight: FontWeight.w700,
@@ -289,7 +290,7 @@ class _RouteSelectionView extends StatelessWidget {
                                       Icons.navigation_rounded,
                                       size: 18,
                                     ),
-                              label: const Text('Find Best Route'),
+                              label: Text(l10n.findBestRoute),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: primaryGreen,
                                 foregroundColor: Colors.white,

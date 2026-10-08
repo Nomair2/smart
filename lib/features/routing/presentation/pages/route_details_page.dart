@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/localization/app_localizations.dart';
 import '../../domain/entities/route_result.dart';
 import '../widgets/comfort_band.dart';
 import '../widgets/comfort_score_gauge.dart';
@@ -22,17 +23,21 @@ class RouteDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final band = comfortBandFor(
       comfortScore: result.comfortScore,
       seasonMode: result.seasonMode,
       shadePercent: result.shadePercent,
+      l10n: l10n,
     );
-    final heatSafety =
-        heatSafetyFor(temperatureC: result.weather.temperatureC, shadePercent: result.shadePercent);
+    final heatSafety = heatSafetyFor(
+      temperatureC: result.weather.temperatureC,
+      shadePercent: result.shadePercent,
+      l10n: l10n,
+    );
     final minutes = (result.estimatedTime.inSeconds / 60).round();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F8F7),
       body: SafeArea(
         bottom: false,
         child: SingleChildScrollView(
@@ -64,12 +69,12 @@ class RouteDetailsPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const Row(
+                    Row(
                       children: [
-                        Text('Route Details',
-                            style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800)),
-                        SizedBox(width: 8),
-                        Text('\ud83d\udcca', style: TextStyle(fontSize: 20)),
+                        Text(l10n.routeDetailsTitle,
+                            style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800)),
+                        const SizedBox(width: 8),
+                        const Text('\ud83d\udcca', style: TextStyle(fontSize: 20)),
                       ],
                     ),
                     const SizedBox(height: 4),
@@ -84,9 +89,9 @@ class RouteDetailsPage extends StatelessWidget {
                 offset: const Offset(0, -26),
                 child: Container(
                   padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor,
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -97,8 +102,8 @@ class RouteDetailsPage extends StatelessWidget {
                             child: _OverviewCard(
                               icon: Icons.straighten_rounded,
                               value: '${result.distanceMeters.round()} m',
-                              label: 'Total Distance',
-                              detail: 'Outdoor walking path',
+                              label: l10n.totalDistance,
+                              detail: l10n.outdoorWalkingPath,
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -106,8 +111,8 @@ class RouteDetailsPage extends StatelessWidget {
                             child: _OverviewCard(
                               icon: Icons.schedule_rounded,
                               value: '$minutes min',
-                              label: 'Estimated Time',
-                              detail: 'At normal walking pace',
+                              label: l10n.estimatedTimeLabel,
+                              detail: l10n.atNormalWalkingPace,
                             ),
                           ),
                         ],
@@ -116,7 +121,7 @@ class RouteDetailsPage extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('COMFORT SCORE',
+                          Text(l10n.comfortScoreLabel,
                               style: TextStyle(
                                   fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 0.6, color: Colors.grey[500])),
                           Container(
@@ -136,34 +141,34 @@ class RouteDetailsPage extends StatelessWidget {
                       const SizedBox(height: 18),
                       ComfortBar(
                         emoji: '\ud83c\udf3f',
-                        label: 'Shaded Coverage',
+                        label: l10n.shadedCoverage,
                         value: result.shadePercent / 100,
                         trailing: '${result.shadePercent.round()}%',
                         color: primaryGreen,
                       ),
                       ComfortBar(
                         emoji: '\u2600\ufe0f',
-                        label: 'Direct Sun',
+                        label: l10n.directSun,
                         value: result.sunPercent / 100,
                         trailing: '${result.sunPercent.round()}%',
                         color: const Color(0xFFE0A83C),
                       ),
                       ComfortBar(
                         emoji: '\ud83c\udf2c\ufe0f',
-                        label: 'Breeze',
+                        label: l10n.breezeLabel,
                         value: result.naturalBreezePercent / 100,
                         trailing: '${result.naturalBreezePercent.round()}%',
                         color: const Color(0xFF4C6FE0),
                       ),
                       ComfortBar(
                         emoji: '\u267f',
-                        label: 'Accessible',
+                        label: l10n.accessibleLabel,
                         value: result.pavedAccessiblePercent / 100,
                         trailing: '${result.pavedAccessiblePercent.round()}%',
                         color: const Color(0xFF7B4CE0),
                       ),
                       const SizedBox(height: 22),
-                      Text('WEATHER IMPACT',
+                      Text(l10n.weatherImpactLabel,
                           style: TextStyle(
                               fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 0.6, color: Colors.grey[500])),
                       const SizedBox(height: 10),
@@ -179,7 +184,11 @@ class RouteDetailsPage extends StatelessWidget {
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                heatSafetyTip(heatSafety: heatSafety),
+                                heatSafetyTip(
+                                  temperatureC: result.weather.temperatureC,
+                                  shadePercent: result.shadePercent,
+                                  l10n: l10n,
+                                ),
                                 style: const TextStyle(fontSize: 12.5, color: Color(0xFF8A6D1F), height: 1.4),
                               ),
                             ),
@@ -197,7 +206,7 @@ class RouteDetailsPage extends StatelessWidget {
                             );
                           },
                           icon: const Icon(Icons.navigation_rounded, size: 18),
-                          label: const Text('Start Navigation'),
+                          label: Text(l10n.startNavigation),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: primaryGreen,
                             foregroundColor: Colors.white,
@@ -231,7 +240,8 @@ class _OverviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(color: const Color(0xFFF6F8F7), borderRadius: BorderRadius.circular(16)),
+      decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

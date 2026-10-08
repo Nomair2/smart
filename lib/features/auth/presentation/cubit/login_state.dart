@@ -11,48 +11,52 @@ const Object _unset = Object();
 class LoginState extends Equatable {
   const LoginState({
     this.status = LoginStatus.initial,
-    this.studentId = '',
+    this.identifier = '',
     this.password = '',
     this.isPasswordVisible = false,
-    this.studentIdError,
+    this.identifierError,
     this.passwordError,
     this.errorMessage,
     this.role,
   });
 
   final LoginStatus status;
-  final String studentId;
+
+  /// Whatever's typed into the single login field — a student ID or an
+  /// email. See `AuthRepository.login`'s doc comment for how the two are
+  /// told apart.
+  final String identifier;
   final String password;
   final bool isPasswordVisible;
-  final String? studentIdError;
+  final String? identifierError;
   final String? passwordError;
   final String? errorMessage;
   final AppUserRole? role;
 
   bool get isValid =>
-      studentId.trim().isNotEmpty &&
+      identifier.trim().isNotEmpty &&
       password.isNotEmpty &&
-      studentIdError == null &&
+      identifierError == null &&
       passwordError == null;
 
   LoginState copyWith({
     LoginStatus? status,
-    String? studentId,
+    String? identifier,
     String? password,
     bool? isPasswordVisible,
-    Object? studentIdError = _unset,
+    Object? identifierError = _unset,
     Object? passwordError = _unset,
     Object? errorMessage = _unset,
     Object? role = _unset,
   }) {
     return LoginState(
       status: status ?? this.status,
-      studentId: studentId ?? this.studentId,
+      identifier: identifier ?? this.identifier,
       password: password ?? this.password,
       isPasswordVisible: isPasswordVisible ?? this.isPasswordVisible,
-      studentIdError: identical(studentIdError, _unset)
-          ? this.studentIdError
-          : studentIdError as String?,
+      identifierError: identical(identifierError, _unset)
+          ? this.identifierError
+          : identifierError as String?,
       passwordError: identical(passwordError, _unset)
           ? this.passwordError
           : passwordError as String?,
@@ -66,10 +70,10 @@ class LoginState extends Equatable {
   @override
   List<Object?> get props => [
     status,
-    studentId,
+    identifier,
     password,
     isPasswordVisible,
-    studentIdError,
+    identifierError,
     passwordError,
     errorMessage,
     role,

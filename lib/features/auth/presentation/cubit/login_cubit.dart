@@ -9,11 +9,11 @@ class LoginCubit extends Cubit<LoginState> {
 
   final AuthRepository _authRepository;
 
-  void studentIdChanged(String value) {
+  void identifierChanged(String value) {
     emit(
       state.copyWith(
-        studentId: value,
-        studentIdError: _validateStudentId(value),
+        identifier: value,
+        identifierError: _validateIdentifier(value),
       ),
     );
   }
@@ -29,13 +29,13 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   Future<void> submitted() async {
-    final studentIdError = _validateStudentId(state.studentId);
+    final identifierError = _validateIdentifier(state.identifier);
     final passwordError = _validatePassword(state.password);
 
-    if (studentIdError != null || passwordError != null) {
+    if (identifierError != null || passwordError != null) {
       emit(
         state.copyWith(
-          studentIdError: studentIdError,
+          identifierError: identifierError,
           passwordError: passwordError,
         ),
       );
@@ -46,7 +46,7 @@ class LoginCubit extends Cubit<LoginState> {
 
     try {
       await _authRepository.login(
-        studentId: state.studentId.trim(),
+        identifier: state.identifier.trim(),
         password: state.password,
       );
       final role = await _authRepository.currentUserRole();
@@ -57,7 +57,7 @@ class LoginCubit extends Cubit<LoginState> {
           status: LoginStatus.failure,
           errorMessage: e is AuthFailure
               ? e.message
-              : 'Invalid student ID or password. Please try again.',
+              : 'Invalid student ID/email or password. Please try again.',
         ),
       );
     }
@@ -81,11 +81,22 @@ class LoginCubit extends Cubit<LoginState> {
     }
   }
 
-  String? _validateStudentId(String value) {
+  /// Accepts either shape the single login field can hold — a plain
+  /// student-ID number, or an email address — and validates whichever one
+  /// the user appears to be typing. The '@' check is the same signal
+  /// `FirebaseAuthRepository.login` uses to tell them apart, so a value
+  /// that passes here is guaranteed to be resolved the way the user meant.
+  String? _validateIdentifier(String value) {
     final trimmed = value.trim();
-    if (trimmed.isEmpty) return 'Student ID is required';
+    if (trimmed.isEmpty) return 'Student ID or email is required';
+    if (trimmed.contains('@')) {
+      if (!RegExp(r'^[\w.+-]+@[\w-]+\.[\w.-]+$').hasMatch(trimmed)) {
+        return 'Enter a valid email address';
+      }
+      return null;
+    }
     if (!RegExp(r'^\d{6,10}$').hasMatch(trimmed)) {
-      return 'Enter a valid student ID (e.g. 441234567)';
+      return 'Enter a valid student ID (e.g. 441234567) or email';
     }
     return null;
   }

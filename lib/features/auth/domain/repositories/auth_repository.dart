@@ -5,17 +5,19 @@ import '../entities/app_user_role.dart';
 /// with `RepositoryProvider<AuthRepository>`.
 ///
 /// NOTE for the Firebase implementation: FirebaseAuth signs in with an
-/// email/password pair, not a student ID directly. `login()` takes a
-/// studentId because that's what the design collects, so the concrete
-/// implementation will need to either:
-///   1. look up the student's email in Firestore by studentId, then call
-///      `signInWithEmailAndPassword`, or
-///   2. store users under a synthetic email like `<studentId>@smartpath.app`
-///      at registration time and sign in with that directly.
-/// Option 1 keeps the real university email as the source of truth and is
-/// what `register()` below assumes.
+/// email/password pair, not a student ID directly. `login()` takes a single
+/// [identifier] field that accepts either, so the concrete implementation
+/// needs to tell them apart and, for a student ID, look up the matching
+/// email in Firestore before calling `signInWithEmailAndPassword` — see the
+/// doc comment on `login` below. `register()` still assumes the real
+/// university email is the source of truth in Firestore.
 abstract class AuthRepository {
-  Future<void> login({required String studentId, required String password});
+  /// [identifier] is whatever the student typed into the one login field —
+  /// either their student ID (digits) or their university email. The
+  /// implementation tells the two apart (an email always contains '@', and
+  /// a student ID never does) and resolves either one to the Firebase Auth
+  /// email FirebaseAuth actually needs.
+  Future<void> login({required String identifier, required String password});
 
   Future<void> register({
     required String studentId,
@@ -28,7 +30,8 @@ abstract class AuthRepository {
   Future<void> signInWithSso();
 
   /// Sends a password-reset email for the account matching [studentId].
-  /// Implementations resolve the underlying email the same way [login] does.
+  /// Unlike [login], this still only accepts a student ID, not an email —
+  /// extend this the same way if that field ever needs the same flexibility.
   Future<void> resetPassword({required String studentId});
 
   /// Which role the *currently signed-in* Firebase Auth user has. Call this

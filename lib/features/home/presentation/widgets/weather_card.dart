@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/localization/app_localizations.dart';
 import '../../domain/entities/weather_snapshot.dart';
 
 class WeatherCard extends StatelessWidget {
@@ -23,6 +24,7 @@ class WeatherCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -81,7 +83,7 @@ class WeatherCard extends StatelessWidget {
                 child: Text(weather.locationLabel,
                     style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w600)),
               ),
-              const Text('Now', style: TextStyle(color: Colors.white70, fontSize: 12)),
+              Text(l10n.nowLabel, style: const TextStyle(color: Colors.white70, fontSize: 12)),
             ],
           ),
           const SizedBox(height: 6),
@@ -104,7 +106,7 @@ class WeatherCard extends StatelessWidget {
             runSpacing: 8,
             children: [
               _Chip(icon: Icons.air_rounded, label: '${weather.windSpeedKph.round()} km/h'),
-              _Chip(icon: Icons.thermostat_rounded, label: 'Feels ${weather.feelsLikeC.round()}°'),
+              _Chip(icon: Icons.thermostat_rounded, label: l10n.feelsLike(weather.feelsLikeC.round())),
               if (weather.isHeatAlert)
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -112,13 +114,13 @@ class WeatherCard extends StatelessWidget {
                     color: const Color(0xFFF5C542),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.warning_amber_rounded, size: 13, color: Colors.black87),
-                      SizedBox(width: 4),
-                      Text('Heat Alert',
-                          style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Colors.black87)),
+                      const Icon(Icons.warning_amber_rounded, size: 13, color: Colors.black87),
+                      const SizedBox(width: 4),
+                      Text(l10n.heatAlertBadge,
+                          style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Colors.black87)),
                     ],
                   ),
                 ),

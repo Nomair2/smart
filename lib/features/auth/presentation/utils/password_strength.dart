@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/localization/app_localizations.dart';
+
 enum PasswordStrength { weak, fair, good, strong }
 
 extension PasswordStrengthX on PasswordStrength {
-  String get label {
+  // Only one call site (password_field.dart), so taking l10n directly
+  // instead of a BuildContext is a small, low-risk way to localize this
+  // — unlike SeasonMode.label, which has enough call sites across other
+  // features that converting it was left out of scope for now.
+  String label(AppLocalizations l10n) {
     switch (this) {
       case PasswordStrength.weak:
-        return 'Weak — try a longer password';
+        return l10n.passwordStrengthWeak;
       case PasswordStrength.fair:
-        return 'Fair — add numbers to strengthen';
+        return l10n.passwordStrengthFair;
       case PasswordStrength.good:
-        return 'Good — add a symbol for extra strength';
+        return l10n.passwordStrengthGood;
       case PasswordStrength.strong:
-        return 'Strong password';
+        return l10n.passwordStrengthStrong;
     }
   }
 

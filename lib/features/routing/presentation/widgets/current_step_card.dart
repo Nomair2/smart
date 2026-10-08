@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/localization/app_localizations.dart';
 import '../../domain/entities/guidance_instruction.dart';
 import 'maneuver_style.dart';
 
@@ -22,7 +23,8 @@ class CurrentStepCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = maneuverStyle(instruction.action);
+    final l10n = AppLocalizations.of(context)!;
+    final style = maneuverStyle(instruction.action, l10n);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
@@ -47,7 +49,7 @@ class CurrentStepCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('STEP $stepNumber OF $totalSteps',
+                Text(l10n.stepOfTotal(stepNumber, totalSteps),
                     style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 11,
@@ -62,7 +64,7 @@ class CurrentStepCard extends StatelessWidget {
                     children: [
                       const Icon(Icons.social_distance_rounded, color: Colors.white70, size: 14),
                       const SizedBox(width: 5),
-                      Text('${instruction.legDistanceMeters.round()} m ahead',
+                      Text(l10n.legDistanceAhead(instruction.legDistanceMeters.round()),
                           style: const TextStyle(color: Colors.white70, fontSize: 12.5)),
                     ],
                   ),

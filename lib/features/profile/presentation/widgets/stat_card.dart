@@ -13,7 +13,11 @@ class StatCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: const Color(0xFFF6F8F7),
+          // Was a hardcoded Color(0xFFF6F8F7) — identical to the scaffold
+          // background, so a flat near-white card would have sat on top
+          // of a dark scaffold in dark mode. This token matches the
+          // light look exactly and gets real contrast in dark.
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/localization/app_localizations.dart';
 import '../../../home/domain/entities/weather_snapshot.dart';
 import 'weather_impact_style.dart';
 
@@ -15,9 +16,10 @@ class WeatherImpactGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final temp = temperatureBand(weather.temperatureC);
-    final heatSafety = heatSafetyFor(temperatureC: weather.temperatureC, shadePercent: shadePercent);
-    final uv = weather.uvIndex != null ? uvBand(weather.uvIndex!) : null;
+    final l10n = AppLocalizations.of(context)!;
+    final temp = temperatureBand(weather.temperatureC, l10n);
+    final heatSafety = heatSafetyFor(temperatureC: weather.temperatureC, shadePercent: shadePercent, l10n: l10n);
+    final uv = weather.uvIndex != null ? uvBand(weather.uvIndex!, l10n) : null;
 
     return Column(
       children: [
@@ -36,20 +38,20 @@ class WeatherImpactGrid extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: uv == null
-                  ? const _WeatherStatCard(
+                  ? _WeatherStatCard(
                       icon: Icons.wb_sunny_rounded,
-                      iconColor: Color(0xFFB8860B),
-                      backgroundColor: Color(0xFFFDF6E3),
+                      iconColor: const Color(0xFFB8860B),
+                      backgroundColor: const Color(0xFFFDF6E3),
                       value: '\u2014',
-                      label: 'UV Index',
-                      detail: 'Not available',
+                      label: l10n.uvIndexLabel,
+                      detail: l10n.notAvailable,
                     )
                   : _WeatherStatCard(
                       icon: Icons.wb_sunny_rounded,
                       iconColor: const Color(0xFFB8860B),
                       backgroundColor: const Color(0xFFFDF6E3),
                       value: '${weather.uvIndex!.round()} / 11',
-                      label: 'UV Index',
+                      label: l10n.uvIndexLabel,
                       detail: uv.label,
                     ),
             ),
@@ -64,8 +66,8 @@ class WeatherImpactGrid extends StatelessWidget {
                 iconColor: const Color(0xFF4C6FE0),
                 backgroundColor: const Color(0xFFEAEEFD),
                 value: '${weather.windSpeedKph.round()} km/h',
-                label: 'Wind Speed',
-                detail: _windDetail(weather.windSpeedKph),
+                label: l10n.windSpeedLabel,
+                detail: _windDetail(weather.windSpeedKph, l10n),
               ),
             ),
             const SizedBox(width: 10),
@@ -75,7 +77,7 @@ class WeatherImpactGrid extends StatelessWidget {
                 iconColor: const Color(0xFF1E5B3D),
                 backgroundColor: const Color(0xFFEAF3EE),
                 value: heatSafety.label,
-                label: 'Heat Safety',
+                label: l10n.heatSafetyLabel,
                 detail: heatSafety.detail,
               ),
             ),
@@ -85,11 +87,11 @@ class WeatherImpactGrid extends StatelessWidget {
     );
   }
 
-  String _windDetail(double kph) {
-    if (kph < 8) return 'Calm';
-    if (kph < 20) return 'Light breeze';
-    if (kph < 35) return 'Breezy';
-    return 'Strong wind';
+  String _windDetail(double kph, AppLocalizations l10n) {
+    if (kph < 8) return l10n.windCalm;
+    if (kph < 20) return l10n.windLightBreeze;
+    if (kph < 35) return l10n.windBreezy;
+    return l10n.windStrong;
   }
 }
 
@@ -122,6 +124,10 @@ class _WeatherStatCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(value, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: iconColor)),
           const SizedBox(height: 2),
+          // label keeps Colors.black87 deliberately: this card's bg stays
+          // the same light accent tint in both themes (a brand tint, not
+          // a scaffold-matching neutral), so its own text doesn't need to
+          // flip with dark mode — only scaffold/card surfaces do.
           Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black87)),
           Text(detail, style: TextStyle(fontSize: 10.5, color: iconColor.withOpacity(0.85))),
         ],

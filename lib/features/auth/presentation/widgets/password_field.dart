@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/localization/app_localizations.dart';
 import '../utils/password_strength.dart';
 
 /// Password input with a visibility toggle and an optional live strength
@@ -26,13 +27,14 @@ class PasswordField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PASSWORD',
+            l10n.passwordLabel,
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
@@ -57,7 +59,7 @@ class PasswordField extends StatelessWidget {
                 onPressed: onVisibilityToggled,
               ),
               filled: true,
-              fillColor: const Color(0xFFF4F6F5),
+              fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
               contentPadding: const EdgeInsets.symmetric(vertical: 14),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
@@ -71,7 +73,7 @@ class PasswordField extends StatelessWidget {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: Color(0xFF1E5B3D), width: 1.5),
+                borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 1.5),
               ),
             ),
           ),
@@ -92,7 +94,7 @@ class PasswordField extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              strength!.label,
+              strength!.label(l10n),
               style: TextStyle(fontSize: 11.5, color: strength!.color, fontWeight: FontWeight.w600),
             ),
           ],

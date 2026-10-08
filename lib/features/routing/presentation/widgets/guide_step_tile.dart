@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/localization/app_localizations.dart';
 import '../../domain/entities/guidance_instruction.dart';
 import 'maneuver_style.dart';
 
@@ -13,7 +14,8 @@ class GuideStepTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = maneuverStyle(instruction.action);
+    final l10n = AppLocalizations.of(context)!;
+    final style = maneuverStyle(instruction.action, l10n);
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
@@ -21,9 +23,10 @@ class GuideStepTile extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          // Was hardcoded Colors.white / Color(0xFFEDF0EF) border.
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFFEDF0EF)),
+          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,7 +55,7 @@ class GuideStepTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(instruction.text,
-                      style: const TextStyle(fontSize: 13, color: Colors.black87, height: 1.35)),
+                      style: const TextStyle(fontSize: 13, height: 1.35)),
                 ],
               ),
             ),

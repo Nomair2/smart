@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/localization/app_localizations.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../cubit/forgot_password_cubit.dart';
 import '../cubit/forgot_password_state.dart';
@@ -38,8 +39,8 @@ class _ForgotPasswordViewState extends State<_ForgotPasswordView> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F8F7),
       resizeToAvoidBottomInset: true,
       body: BlocConsumer<ForgotPasswordCubit, ForgotPasswordState>(
         listenWhen: (previous, current) => previous.status != current.status,
@@ -58,18 +59,18 @@ class _ForgotPasswordViewState extends State<_ForgotPasswordView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const AuthGradientHeader(
-                    title: 'Reset Password',
-                    subtitle: "We'll email you a link to reset it",
+                  AuthGradientHeader(
+                    title: l10n.resetPassword,
+                    subtitle: l10n.resetPasswordSubtitle,
                     emoji: '🔑',
                   ),
                   Transform.translate(
                     offset: const Offset(0, -32),
                     child: Container(
                       padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
                       ),
                       child: state.status == ForgotPasswordStatus.success
                           ? _SuccessContent(onBackToLogin: () => Navigator.of(context).pop())
@@ -99,18 +100,18 @@ class _FormContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Enter the student ID linked to your account and we\u2019ll send a '
-          'password reset link to your university email.',
+          l10n.forgotPasswordBody,
           style: TextStyle(fontSize: 13.5, color: Colors.grey[600], height: 1.4),
         ),
         const SizedBox(height: 20),
         AuthTextField(
-          label: 'Student ID Number',
-          hint: 'e.g. 441234567',
+          label: l10n.studentIdNumber,
+          hint: l10n.studentIdHint,
           icon: Icons.tag_rounded,
           controller: controller,
           keyboardType: TextInputType.number,
@@ -119,7 +120,7 @@ class _FormContent extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         PrimaryAuthButton(
-          label: 'Send Reset Link',
+          label: l10n.sendResetLink,
           isLoading: state.status == ForgotPasswordStatus.submitting,
           onPressed: state.isValid ? cubit.submitted : null,
         ),
@@ -137,6 +138,7 @@ class _SuccessContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -147,18 +149,17 @@ class _SuccessContent extends StatelessWidget {
           decoration: const BoxDecoration(color: Color(0xFFEAF3EE), shape: BoxShape.circle),
           child: const Icon(Icons.mark_email_read_rounded, color: primaryGreen, size: 32),
         ),
-        const Text(
-          'Check your email',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.black87),
+        Text(
+          l10n.checkYourEmail,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 8),
         Text(
-          'If an account exists for that student ID, a password reset link '
-          'has been sent to the university email on file.',
+          l10n.forgotPasswordSuccessBody,
           style: TextStyle(fontSize: 13.5, color: Colors.grey[600], height: 1.4),
         ),
         const SizedBox(height: 24),
-        PrimaryAuthButton(label: 'Back to Login', onPressed: onBackToLogin, showArrow: false),
+        PrimaryAuthButton(label: l10n.backToLogin, onPressed: onBackToLogin, showArrow: false),
       ],
     );
   }
