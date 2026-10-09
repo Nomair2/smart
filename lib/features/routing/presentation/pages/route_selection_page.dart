@@ -66,9 +66,7 @@ class _RouteSelectionView extends StatelessWidget {
               child: Center(
                 child: Padding(
                   padding: const EdgeInsets.all(24),
-                  child: Text(
-                    state.errorMessage ?? l10n.couldNotLoadCampusMap,
-                  ),
+                  child: Text(state.errorMessage ?? l10n.couldNotLoadCampusMap),
                 ),
               ),
             );
@@ -120,12 +118,12 @@ class _RouteSelectionView extends StatelessWidget {
                         GestureDetector(
                           // Debug-only shortcut to the campus data check map
                           // — see CampusDebugMapPage's doc comment.
-                          // onTap: kDebugMode
-                          //     ? () => Navigator.of(
-                          //         context,
-                          //       ).pushNamed('/debug-campus-map')
-                          //     // ).push(CampusDebugMapPage())
-                          //     : null,
+                          onTap: kDebugMode
+                              ? () => Navigator.of(
+                                  context,
+                                ).pushNamed('/debug-campus-map')
+                              // ).push(CampusDebugMapPage())
+                              : null,
                           child: Row(
                             children: [
                               Text(

@@ -168,19 +168,34 @@ class CampusMapData {
   static final CampusNode xintersection5 = CampusNode(
     id: 'x_intersection_5',
     type: CampusNodeType.intersection,
-    location: _p(18.2479115, 42.5592827), // ESTIMATED — replace
+    location: _p(18.2479096, 42.5593199), // ESTIMATED — replace
   );
 
   static final CampusNode xintersection6 = CampusNode(
     id: 'x_intersection_6',
     type: CampusNodeType.intersection,
-    location: _p(18.2492100, 42.5586946), // ESTIMATED — replace
+    location: _p(18.2494711, 42.5586339), // ESTIMATED — replace
   );
 
   static final CampusNode xintersection7 = CampusNode(
     id: 'x_intersection_7',
     type: CampusNodeType.intersection,
-    location: _p(18.2493265, 42.5589839), // ESTIMATED — replace
+    location: _p(18.2495742, 42.5588696), // ESTIMATED — replace
+  );
+  static final CampusNode xintersection8 = CampusNode(
+    id: 'x_intersection_8',
+    type: CampusNodeType.intersection,
+    location: _p(18.2480468, 42.559231), // ESTIMATED — replace
+  );
+  static final CampusNode xintersection9 = CampusNode(
+    id: 'x_intersection_9',
+    type: CampusNodeType.intersection,
+    location: _p(18.248103, 42.559398), // ESTIMATED — replace
+  );
+  static final CampusNode xintersection10 = CampusNode(
+    id: 'x_intersection_10',
+    type: CampusNodeType.intersection,
+    location: _p(18.248331, 42.559353), // ESTIMATED — replace
   );
   static final CampusNode xGGate9 = CampusNode(
     id: 'x_G_gate9',
@@ -216,6 +231,9 @@ class CampusMapData {
     xintersection5,
     xintersection6,
     xintersection7,
+    xintersection8,
+    xintersection9,
+    xintersection10,
   ];
 
   // ------------------------------------------------------------------
@@ -258,17 +276,23 @@ class CampusMapData {
     _seg('seg_3', xCafe, cafeteria, 0.45), // short spur to the cafe
     // Main walkway heading west; each fork has a short tooth to a gate.
     _seg('seg_14', xintersection2, xintersection3, 0.30),
-    _seg('seg_15', xintersection3, xintersection4, 0.30),
-    _seg('seg_17', xintersection4, xintersection5, 0.30),
+    _seg('seg_15', xintersection3, xintersection10, 0.30),
+    _seg('seg_17', xintersection4, xintersection10, 0.40),
 
     _seg('seg_4', xintersection5, xGate6, 0.30),
+
+    _seg('seg_21', xintersection5, xintersection8, 0.30),
+
+    _seg('seg_22', xintersection4, xintersection8, 0.30),
+    _seg('seg_23', xintersection9, xintersection8, 0.95),
+    _seg('seg_24', xintersection10, xintersection9, 0.95),
     _seg('seg_5', xGate6, bldgAGate6, 0.35),
     _seg('seg_6', xintersection4, xGate9, 0.35),
     _seg('seg_7', xGate9, bldgAGate9, 0.30),
     _seg('seg_8', xintersection1, xintersection6, 0.40),
-    _seg('seg_18', xGate9, xintersection6, 0.40),
+    _seg('seg_18', xGate9, xintersection6, 0.55),
     _seg('seg_20', xGate9, library, 0.40),
-    _seg('seg_19', xintersection6, xintersection7, 0.40),
+    _seg('seg_19', xintersection6, xintersection7, 0.90),
     _seg('seg_10', xintersection7, starbucks, 0.40),
 
     _seg('seg_9', xGate11, bldgAGate11, 0.35),

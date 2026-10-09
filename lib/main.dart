@@ -1,4 +1,5 @@
 import 'package:MasarKKU/features/notifications/data/repositories/fake_notification_repository.dart';
+import 'package:MasarKKU/features/notifications/data/repositories/firestore_notification_repository.dart';
 import 'package:MasarKKU/features/notifications/domain/repositories/notification_repository.dart';
 import 'package:MasarKKU/features/routing/data/flutter_tts_voice_guide_service.dart';
 import 'package:MasarKKU/features/routing/data/repositories/fake_campus_repository.dart';
@@ -63,7 +64,7 @@ Future<void> main() async {
           ),
         ),
         RepositoryProvider<NotificationRepository>(
-          create: (_) => FakeNotificationRepository(),
+          create: (_) => FirestoreNotificationRepository(),
         ),
         RepositoryProvider<HomeRepository>(create: (_) => FakeHomeRepository()),
         RepositoryProvider<CampusRepository>(
